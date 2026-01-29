@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tests - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/student/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/student/classrooms" class="nav-item">Lớp học</a>
+                <a href="/student/profile" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <div class="user-info">
+                    <span>Học sinh</span>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 12px;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Bài kiểm tra</div>
+            </header>
+
+            <div class="content">
+                <!-- Empty State -->
+                <div th:if="${#lists.isEmpty(tests)}" class="empty-state">
+                    <div class="empty-state-title">Chưa có bài kiểm tra</div>
+                    <p>Giáo viên chưa tạo bài kiểm tra nào cho phòng của bạn</p>
+                </div>
+
+                <!-- Tests List -->
+                <div th:if="${!#lists.isEmpty(tests)}" class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Đề thi</th>
+                                <th>Phòng học</th>
+                                <th>Môn học</th>
+                                <th>Thời gian</th>
+                                <th>Số câu</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="test : ${tests}">
+                                <td th:text="${test.title}"></td>
+                                <td>
+                                    <span th:if="${test.classroom != null}" th:text="${test.classroom.name}"></span>
+                                    <span th:if="${test.classroom == null}" style="color: var(--text-secondary);">Tất cả phòng</span>
+                                </td>
+                                <td th:text="${test.subject}"></td>
+                                <td th:text="${test.durationMinutes} + ' phút'"></td>
+                                <td th:text="${test.testQuestions.size()} + ' câu'"></td>
+                                <td>
+                                    <a th:href="@{/student/tests/{id}(id=${test.id})}" class="btn btn-sm">Xem</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

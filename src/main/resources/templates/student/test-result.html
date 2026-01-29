@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả bài kiểm tra</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .result-header {
+            text-align: center;
+            padding: var(--space-10);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: var(--space-8);
+            background: var(--gray-50);
+        }
+        .score-display {
+            font-size: 48px;
+            font-weight: 600;
+            margin: var(--space-4) 0;
+            color: var(--gray-900);
+            letter-spacing: -0.02em;
+        }
+        .question-result {
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+        }
+        .question-result.correct {
+            border-color: var(--gray-300);
+            background: var(--gray-50);
+        }
+        .question-result.incorrect {
+            border-color: var(--gray-300);
+            background: #fff;
+        }
+        .answer-option {
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: 6px;
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+        }
+        .answer-option.correct {
+            background: var(--gray-100);
+            border-color: var(--gray-400);
+            font-weight: 500;
+        }
+        .answer-option.incorrect {
+            background: #fff;
+            border-color: var(--gray-300);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .status-correct {
+            background: var(--gray-900);
+            color: #fff;
+        }
+        .status-incorrect {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a th:href="@{/student/dashboard}" class="nav-item">Bảng điều khiển</a>
+                <a th:href="@{/student/classrooms}" class="nav-item">Lớp học</a>
+                <a th:href="@{/student/profile}" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Kết quả bài kiểm tra</div>
+            </header>
+
+            <div class="content">
+                <!-- Result Header -->
+                <div class="result-header">
+                    <h2 th:text="${test.title}" style="margin-bottom: 8px; font-size: 18px; font-weight: 600;">Tên bài kiểm tra</h2>
+                    <div style="font-size: 13px; color: var(--gray-500); margin-bottom: var(--space-4);">
+                        Hoàn thành lúc: <span th:text="${#temporals.format(studentTest.submittedAt, 'HH:mm dd/MM/yyyy')}"></span>
+                    </div>
+                    <div class="score-display">
+                        <span th:text="${studentTest.score}">8.5</span> / <span th:text="${test.totalPoints}">10</span>
+                    </div>
+                    <div style="font-size: 15px; color: var(--gray-600);">
+                        <span th:text="${#numbers.formatDecimal(studentTest.score * 100 / test.totalPoints, 1, 1)}">85</span>%
+                    </div>
+                </div>
+
+                <!-- Back Button -->
+                <div style="margin-bottom: var(--space-6);">
+                    <a th:href="@{/student/classrooms/{id}(id=${classroomId})}" 
+                       th:if="${classroomId != null}"
+                       class="btn btn-secondary">← Quay lại lớp học</a>
+                    <a th:href="@{/student/classrooms}" 
+                       th:if="${classroomId == null}"
+                       class="btn btn-secondary">← Quay lại</a>
+                </div>
+
+                <!-- Questions Review -->
+                <div th:each="tq, iterStat : ${test.testQuestions}">
+                    <div class="question-result"
+                         th:with="studentAnswer=${studentAnswers.get(tq.question.id.toString())},
+                                  isCorrect=${studentAnswer != null and studentAnswer.trim().equalsIgnoreCase(tq.question.correctAnswer.trim())}"
+                         th:classappend="${(tq.question.questionType.name() == 'MULTIPLE_CHOICE' or tq.question.questionType.name() == 'TRUE_FALSE') ? (isCorrect ? 'correct' : 'incorrect') : ''}">
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-3);">
+                            <div style="flex: 1;">
+                                <div style="display: inline-block; background: var(--gray-900); color: white; padding: 4px 12px; border-radius: 4px; font-weight: 600; font-size: 13px; margin-bottom: var(--space-2);">
+                                    Câu <span th:text="${iterStat.index + 1}">1</span>
+                                </div>
+                                <div style="font-size: 15px; font-weight: 500; margin-bottom: var(--space-3);">
+                                    <span th:text="${tq.question.content}">Nội dung câu hỏi</span>
+                                </div>
+                            </div>
+                            <div style="text-align: right; margin-left: var(--space-4);">
+                                <div th:if="${tq.question.questionType.name() == 'MULTIPLE_CHOICE' or tq.question.questionType.name() == 'TRUE_FALSE'}">
+                                    <span th:if="${isCorrect}" class="status-badge status-correct">Đúng</span>
+                                    <span th:if="${!isCorrect}" class="status-badge status-incorrect">Sai</span>
+                                </div>
+                                <div style="font-size: 13px; color: var(--gray-500); margin-top: var(--space-1);">
+                                    <span th:text="${tq.customPoints != null ? tq.customPoints : tq.question.points}">1.0</span> điểm
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multiple Choice -->
+                        <div th:if="${tq.question.questionType.name() == 'MULTIPLE_CHOICE'}">
+                            <div th:if="${tq.question.optionA != null and !#strings.isEmpty(tq.question.optionA)}" 
+                                 class="answer-option"
+                                 th:classappend="${tq.question.correctAnswer == 'A' ? 'correct' : ''} ${studentAnswer == 'A' and tq.question.correctAnswer != 'A' ? 'incorrect' : ''}">
+                                <strong>A.</strong> <span th:text="${tq.question.optionA}">Đáp án A</span>
+                                <span th:if="${tq.question.correctAnswer == 'A'}" style="color: var(--gray-700); font-weight: 600; margin-left: 8px;">✓</span>
+                                <span th:if="${studentAnswer == 'A' and tq.question.correctAnswer != 'A'}" style="color: var(--gray-500); margin-left: 8px;">← Bạn chọn</span>
+                            </div>
+                            <div th:if="${tq.question.optionB != null and !#strings.isEmpty(tq.question.optionB)}" 
+                                 class="answer-option"
+                                 th:classappend="${tq.question.correctAnswer == 'B' ? 'correct' : ''} ${studentAnswer == 'B' and tq.question.correctAnswer != 'B' ? 'incorrect' : ''}">
+                                <strong>B.</strong> <span th:text="${tq.question.optionB}">Đáp án B</span>
+                                <span th:if="${tq.question.correctAnswer == 'B'}" style="color: var(--gray-700); font-weight: 600; margin-left: 8px;">✓</span>
+                                <span th:if="${studentAnswer == 'B' and tq.question.correctAnswer != 'B'}" style="color: var(--gray-500); margin-left: 8px;">← Bạn chọn</span>
+                            </div>
+                            <div th:if="${tq.question.optionC != null and !#strings.isEmpty(tq.question.optionC)}" 
+                                 class="answer-option"
+                                 th:classappend="${tq.question.correctAnswer == 'C' ? 'correct' : ''} ${studentAnswer == 'C' and tq.question.correctAnswer != 'C' ? 'incorrect' : ''}">
+                                <strong>C.</strong> <span th:text="${tq.question.optionC}">Đáp án C</span>
+                                <span th:if="${tq.question.correctAnswer == 'C'}" style="color: var(--gray-700); font-weight: 600; margin-left: 8px;">✓</span>
+                                <span th:if="${studentAnswer == 'C' and tq.question.correctAnswer != 'C'}" style="color: var(--gray-500); margin-left: 8px;">← Bạn chọn</span>
+                            </div>
+                            <div th:if="${tq.question.optionD != null and !#strings.isEmpty(tq.question.optionD)}" 
+                                 class="answer-option"
+                                 th:classappend="${tq.question.correctAnswer == 'D' ? 'correct' : ''} ${studentAnswer == 'D' and tq.question.correctAnswer != 'D' ? 'incorrect' : ''}">
+                                <strong>D.</strong> <span th:text="${tq.question.optionD}">Đáp án D</span>
+                                <span th:if="${tq.question.correctAnswer == 'D'}" style="color: var(--gray-700); font-weight: 600; margin-left: 8px;">✓</span>
+                                <span th:if="${studentAnswer == 'D' and tq.question.correctAnswer != 'D'}" style="color: var(--gray-500); margin-left: 8px;">← Bạn chọn</span>
+                            </div>
+                        </div>
+
+                        <!-- True/False -->
+                        <div th:if="${tq.question.questionType.name() == 'TRUE_FALSE'}">
+                            <div style="padding: 12px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px; margin-top: 8px;">
+                                <div><strong>Câu trả lời của bạn:</strong> <span th:text="${studentAnswer}">-</span></div>
+                                <div style="font-weight: 600; margin-top: 4px;"><strong>Đáp án đúng:</strong> <span th:text="${tq.question.correctAnswer}">Đúng</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Essay/Fill Blank -->
+                        <div th:if="${tq.question.questionType.name() == 'ESSAY' or tq.question.questionType.name() == 'FILL_BLANK'}">
+                            <div style="padding: 12px; background: var(--gray-50); border: 1px solid var(--gray-200); border-radius: 6px; margin-top: 8px;">
+                                <div style="margin-bottom: 8px;"><strong>Câu trả lời của bạn:</strong></div>
+                                <div style="padding: 12px; background: #fff; border: 1px solid var(--gray-200); border-radius: 4px; white-space: pre-wrap;" th:text="${studentAnswer}">-</div>
+                                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--gray-200);">
+                                    <div style="font-weight: 600; margin-bottom: 4px;">Đáp án gợi ý:</div>
+                                    <div style="color: var(--gray-600);" th:text="${tq.question.correctAnswer}">Đáp án</div>
+                                </div>
+                                <div style="margin-top: 8px; padding: 8px; background: var(--gray-100); border-radius: 4px; font-size: 13px; color: var(--gray-600);">
+                                    ✓ Đã chấm tự động bằng AI
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Explanation -->
+                        <div th:if="${tq.question.explanation != null and !#strings.isEmpty(tq.question.explanation)}" 
+                             style="margin-top: 12px; padding: 12px; background: var(--gray-100); border-left: 3px solid var(--gray-400); border-radius: 4px;">
+                            <div style="font-weight: 600; color: var(--gray-700); margin-bottom: 4px;">💡 Giải thích:</div>
+                            <div style="color: var(--gray-600);" th:text="${tq.question.explanation}">Giải thích đáp án</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lớp của tôi - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            <nav class="sidebar-nav">
+                <a href="/student/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/student/classrooms" class="nav-item active">Lớp học</a>
+                <a href="/student/profile" class="nav-item">Hồ sơ</a>
+            </nav>
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Lớp của tôi</div>
+                <div class="header-actions">
+                    <a href="/student/join" class="btn btn-primary">Tham gia lớp mới</a>
+                </div>
+            </header>
+            <div class="content">
+                <div th:if="${#lists.isEmpty(classrooms)}" class="empty-state">
+                    <div class="empty-state-title">Chưa tham gia lớp nào</div>
+                    <p>Nhập mã lớp học để tham gia lớp của giáo viên</p>
+                    <a href="/student/join" class="btn btn-primary" style="margin-top: 24px;">Tham gia lớp</a>
+                </div>
+                <div th:if="${!#lists.isEmpty(classrooms)}" 
+                     style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+                    <a th:href="@{/student/classrooms/{id}(id=${member.classroom.id})}" 
+                       class="card" 
+                       th:each="member : ${classrooms}"
+                       style="text-decoration: none; color: inherit; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                       onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+                        <div class="card-body">
+                            <h3 class="card-title mb-sm" th:text="${member.classroom.name}">Tên lớp học</h3>
+                            <div class="text-sm text-secondary mb-md">
+                                Mã lớp: <span style="font-weight: 600; font-family: monospace;" th:text="${member.classroom.roomId}"></span>
+                            </div>
+                            <div class="text-sm text-secondary mb-md">
+                                Giáo viên: <span style="font-weight: 600;" th:text="${member.classroom.teacher.fullName}"></span>
+                            </div>
+                            <div class="text-sm text-secondary mb-lg" th:text="${member.classroom.description}">
+                                Mô tả lớp học
+                            </div>
+                            <div class="text-sm text-secondary">
+                                Tham gia: <span th:text="${#temporals.format(member.joinedAt, 'dd/MM/yyyy')}"></span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

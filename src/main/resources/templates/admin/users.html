@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Người dùng - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item active">Người dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Người dùng</div>
+                <div class="header-actions">
+                    <a href="/admin/users/new" class="btn btn-primary">Người dùng mới</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Họ và tên</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}"></td>
+                                <td th:text="${user.email}"></td>
+                                <td th:text="${user.fullName}"></td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${user.role.name() == 'ADMIN'} ? 'badge-danger' : (${user.role.name() == 'TEACHER'} ? 'badge-success' : 'badge-warning')"
+                                          th:text="${user.role}"></span>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${user.active} ? 'badge-success' : ''"
+                                          th:text="${user.active} ? 'Hoạt động' : 'Không hoạt động'"></span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-sm">Sửa</a>
+                                        <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post">
+                                            <button type="submit" class="btn btn-sm" 
+                                                    onclick="return confirm('Xóa người dùng này?')">Xóa</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

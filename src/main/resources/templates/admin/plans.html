@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gói dịch vụ - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Người dùng</a>
+                <a href="/admin/plans" class="nav-item active">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Gói dịch vụ</div>
+            </header>
+
+            <div class="content">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                    <div class="card" th:each="plan : ${plans}">
+                        <div class="card-header">
+                            <div class="card-title" th:text="${plan.name}">Tên gói</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="margin-bottom: 24px;">
+                                <div style="font-size: 32px; font-weight: 600; margin-bottom: 4px;">
+                                    <span th:if="${plan.price == 0}">Miễn phí</span>
+                                    <span th:if="${plan.price > 0}" th:text="${#numbers.formatDecimal(plan.price, 0, 'COMMA', 0, 'POINT')} + '₫'"></span>
+                                </div>
+                                <div class="text-secondary text-sm">mỗi tháng</div>
+                            </div>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
+                                <div class="text-sm">
+                                    <span class="text-secondary">Số lớp tối đa:</span>
+                                    <span th:text="${plan.maxClasses}"></span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-secondary">Số học sinh tối đa:</span>
+                                    <span th:text="${plan.maxStudents}"></span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-secondary">Bài giảng AI/tháng:</span>
+                                    <span th:text="${plan.aiLessonsPerMonth}"></span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-secondary">Đề thi/tháng:</span>
+                                    <span th:text="${plan.testsPerMonth}"></span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-secondary">Ngân hàng câu hỏi:</span>
+                                    <span th:text="${plan.maxQuestionsBank}"></span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-secondary">Chấm bài tự động:</span>
+                                    <span th:text="${plan.autoGrading} ? 'Có' : 'Không'"></span>
+                                </div>
+                                <div class="text-sm">
+                                    <span class="text-secondary">Báo cáo nâng cao:</span>
+                                    <span th:text="${plan.advancedReports} ? 'Có' : 'Không'"></span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <span class="badge" 
+                                      th:classappend="${plan.active} ? 'badge-success' : ''"
+                                      th:text="${plan.active} ? 'Hoạt động' : 'Không hoạt động'"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

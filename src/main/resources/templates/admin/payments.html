@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử thanh toán - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Người dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item active">Thanh toán</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Lịch sử thanh toán</div>
+            </header>
+
+            <div class="content">
+                <!-- Stats Cards -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 32px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Tổng doanh thu</div>
+                            <div style="font-size: 24px; font-weight: 700;">
+                                <span th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')}"></span>đ
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Giao dịch thành công</div>
+                            <div style="font-size: 24px; font-weight: 700;" th:text="${paidCount}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Đang chờ</div>
+                            <div style="font-size: 24px; font-weight: 700;" th:text="${pendingCount}"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Thất bại</div>
+                            <div style="font-size: 24px; font-weight: 700;" th:text="${failedCount}"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payments Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Tất cả giao dịch</div>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Giáo viên</th>
+                                    <th>Gói</th>
+                                    <th>Số tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Phương thức</th>
+                                    <th>Mã GD</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Thời hạn</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="sub : ${subscriptions}">
+                                    <td th:text="${sub.id}"></td>
+                                    <td>
+                                        <div th:text="${sub.user.fullName}"></div>
+                                        <div style="font-size: 12px; color: var(--text-secondary);" th:text="${sub.user.email}"></div>
+                                    </td>
+                                    <td th:text="${sub.plan.name}"></td>
+                                    <td>
+                                        <span th:text="${#numbers.formatDecimal(sub.amount, 0, 'COMMA', 0, 'POINT')}"></span>đ
+                                    </td>
+                                    <td>
+                                        <span th:if="${sub.paymentStatus.name() == 'PAID'}" 
+                                              style="padding: 4px 8px; background: #d4edda; color: #155724; border-radius: 4px; font-size: 12px;">
+                                            Đã thanh toán
+                                        </span>
+                                        <span th:if="${sub.paymentStatus.name() == 'PENDING'}" 
+                                              style="padding: 4px 8px; background: #fff3cd; color: #856404; border-radius: 4px; font-size: 12px;">
+                                            Đang chờ
+                                        </span>
+                                        <span th:if="${sub.paymentStatus.name() == 'FAILED'}" 
+                                              style="padding: 4px 8px; background: #f8d7da; color: #721c24; border-radius: 4px; font-size: 12px;">
+                                            Thất bại
+                                        </span>
+                                    </td>
+                                    <td th:text="${sub.paymentMethod}"></td>
+                                    <td>
+                                        <span style="font-family: monospace; font-size: 12px;" th:text="${sub.transactionId}"></span>
+                                    </td>
+                                    <td th:text="${#temporals.format(sub.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td>
+                                        <div th:text="${#temporals.format(sub.startDate, 'dd/MM/yyyy')}"></div>
+                                        <div style="font-size: 12px; color: var(--text-secondary);">
+                                            đến <span th:text="${#temporals.format(sub.endDate, 'dd/MM/yyyy')}"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(subscriptions)}">
+                                    <td colspan="9" style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                                        Chưa có giao dịch nào
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

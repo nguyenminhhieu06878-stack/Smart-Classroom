@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gói dịch vụ - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/subscription" class="nav-item active">Gói dịch vụ</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <div class="user-info">
+                    <span th:text="${teacher.fullName}"></span>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 12px;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Gói dịch vụ</div>
+            </header>
+
+            <div class="content">
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success" style="margin-bottom: 24px; padding: 16px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724;">
+                    <span th:text="${successMessage}"></span>
+                </div>
+                <div th:if="${errorMessage}" class="alert alert-error" style="margin-bottom: 24px; padding: 16px; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; color: #721c24;">
+                    <span th:text="${errorMessage}"></span>
+                </div>
+                
+                <!-- Current Plan -->
+                <div class="card" style="max-width: 800px; margin-bottom: 32px;">
+                    <div class="card-header">
+                        <div class="card-title">Gói hiện tại</div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${activeSubscription != null}">
+                            <h2 style="margin-bottom: 8px;" th:text="${activeSubscription.plan.name}"></h2>
+                            <p style="color: var(--text-secondary); margin-bottom: 24px;" th:text="${activeSubscription.plan.description}"></p>
+                            
+                            <!-- Days Remaining -->
+                            <div style="margin-bottom: 24px; padding: 12px; background: #e3f2fd; border-radius: 8px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 24px;">⏰</span>
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 18px;">
+                                            Còn <span th:text="${activeSubscription.daysRemaining}"></span> ngày
+                                        </div>
+                                        <div style="color: var(--text-secondary); font-size: 13px;">
+                                            Hết hạn: <span th:text="${#temporals.format(activeSubscription.endDate, 'dd/MM/yyyy')}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Plan Limits -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 13px;">Số phòng học</div>
+                                    <div style="font-size: 18px; font-weight: 600;" th:text="${activeSubscription.plan.maxClasses}"></div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 13px;">Học sinh/phòng</div>
+                                    <div style="font-size: 18px; font-weight: 600;" th:text="${activeSubscription.plan.maxStudents}"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- AI Usage Stats -->
+                            <h4 style="margin-bottom: 16px;">Sử dụng AI trong tháng</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                                <div style="padding: 16px; background: #f5f5f5; border-radius: 8px;">
+                                    <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Bài giảng AI</div>
+                                    <div style="font-size: 20px; font-weight: 600;">
+                                        <span th:text="${activeSubscription.aiLessonsUsed != null ? activeSubscription.aiLessonsUsed : 0}"></span>
+                                        <span style="font-size: 14px; color: var(--text-secondary);">
+                                            / <span th:text="${activeSubscription.plan.aiLessonsPerMonth}"></span>
+                                        </span>
+                                    </div>
+                                    <div th:if="${activeSubscription.aiLessonsUsed != null && activeSubscription.plan.aiLessonsPerMonth != null}" 
+                                         style="margin-top: 8px; height: 4px; background: #e0e0e0; border-radius: 2px; overflow: hidden;">
+                                        <div style="height: 100%; background: #4CAF50; border-radius: 2px;"
+                                             th:style="'width: ' + ${(activeSubscription.aiLessonsUsed * 100.0 / activeSubscription.plan.aiLessonsPerMonth)} + '%'"></div>
+                                    </div>
+                                </div>
+                                
+                                <div style="padding: 16px; background: #f5f5f5; border-radius: 8px;">
+                                    <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Câu hỏi AI</div>
+                                    <div style="font-size: 20px; font-weight: 600;">
+                                        <span th:text="${activeSubscription.aiQuestionsUsed != null ? activeSubscription.aiQuestionsUsed : 0}"></span>
+                                    </div>
+                                </div>
+                                
+                                <div style="padding: 16px; background: #f5f5f5; border-radius: 8px;">
+                                    <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">Đề thi đã tạo</div>
+                                    <div style="font-size: 20px; font-weight: 600;">
+                                        <span th:text="${activeSubscription.testsCreated != null ? activeSubscription.testsCreated : 0}"></span>
+                                        <span style="font-size: 14px; color: var(--text-secondary);">
+                                            / <span th:text="${activeSubscription.plan.testsPerMonth}"></span>
+                                        </span>
+                                    </div>
+                                    <div th:if="${activeSubscription.testsCreated != null && activeSubscription.plan.testsPerMonth != null}" 
+                                         style="margin-top: 8px; height: 4px; background: #e0e0e0; border-radius: 2px; overflow: hidden;">
+                                        <div style="height: 100%; background: #2196F3; border-radius: 2px;"
+                                             th:style="'width: ' + ${(activeSubscription.testsCreated * 100.0 / activeSubscription.plan.testsPerMonth)} + '%'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${activeSubscription == null}">
+                            <p style="color: var(--text-secondary);">Bạn chưa có gói dịch vụ nào. Chọn gói bên dưới để bắt đầu.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Plans -->
+                <h3 style="margin-bottom: 24px;">Nâng cấp gói</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+                    <div class="card" th:each="plan : ${plans}" style="display: flex; flex-direction: column;">
+                        <div class="card-body" style="display: flex; flex-direction: column; flex: 1;">
+                            <h3 class="card-title" th:text="${plan.name}"></h3>
+                            <div style="font-size: 32px; font-weight: 700; margin: 16px 0;">
+                                <span th:text="${#numbers.formatDecimal(plan.price, 0, 'COMMA', 0, 'POINT')}"></span>đ
+                                <span style="font-size: 14px; font-weight: 400; color: var(--text-secondary);">/tháng</span>
+                            </div>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 12px; margin: 24px 0; flex: 1;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-secondary);">✓</span>
+                                    <span th:text="${plan.maxClasses} + ' phòng học'"></span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-secondary);">✓</span>
+                                    <span th:text="${plan.maxStudents} + ' học sinh/phòng'"></span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-secondary);">✓</span>
+                                    <span th:text="${plan.aiLessonsPerMonth} + ' AI bài giảng/tháng'"></span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-secondary);">✓</span>
+                                    <span th:text="${plan.testsPerMonth} + ' đề thi/tháng'"></span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-secondary);">✓</span>
+                                    <span th:text="${plan.maxQuestionsBank} + ' câu hỏi'"></span>
+                                </div>
+                                <div th:if="${plan.autoGrading}" style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-secondary);">✓</span>
+                                    <span>Chấm điểm tự động</span>
+                                </div>
+                                <div th:if="${plan.advancedReports}" style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="color: var(--text-secondary);">✓</span>
+                                    <span>Báo cáo nâng cao</span>
+                                </div>
+                            </div>
+                            
+                            <form th:action="@{/teacher/subscription/upgrade}" method="post" style="margin-top: auto;">
+                                <input type="hidden" name="planId" th:value="${plan.id}"/>
+                                
+                                <!-- Chỉ hiển thị month selector cho gói trả phí -->
+                                <div th:if="${plan.price > 0}" style="margin-bottom: 16px;">
+                                    <label style="display: block; margin-bottom: 8px; font-size: 14px; color: var(--text-secondary);">Thời hạn</label>
+                                    <select name="months" class="form-input" style="width: 100%;">
+                                        <option value="1">1 tháng</option>
+                                        <option value="3">3 tháng (-5%)</option>
+                                        <option value="6">6 tháng (-10%)</option>
+                                        <option value="12">12 tháng (-15%)</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Nút cho gói miễn phí -->
+                                <button th:if="${plan.price == 0}" 
+                                        type="submit" 
+                                        class="btn"
+                                        style="width: 100%;"
+                                        th:disabled="${activeSubscription != null && activeSubscription.plan.id == plan.id}"
+                                        th:classappend="${activeSubscription != null && activeSubscription.plan.id == plan.id} ? 'btn-ghost' : ''">
+                                    <span th:if="${activeSubscription != null && activeSubscription.plan.id == plan.id}">Gói hiện tại</span>
+                                    <span th:if="${activeSubscription == null || activeSubscription.plan.id != plan.id}">Chọn gói miễn phí</span>
+                                </button>
+                                
+                                <!-- Nút cho gói trả phí -->
+                                <button th:if="${plan.price > 0}" 
+                                        type="submit" 
+                                        class="btn"
+                                        style="width: 100%;"
+                                        th:disabled="${activeSubscription != null && activeSubscription.plan.id == plan.id}"
+                                        th:classappend="${activeSubscription != null && activeSubscription.plan.id == plan.id} ? 'btn-ghost' : ''">
+                                    <span th:if="${activeSubscription != null && activeSubscription.plan.id == plan.id}">Gói hiện tại</span>
+                                    <span th:if="${activeSubscription == null || activeSubscription.plan.id != plan.id}">Thanh toán</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

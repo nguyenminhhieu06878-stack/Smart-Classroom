@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mock Payment - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div style="max-width: 600px; margin: 100px auto; padding: 40px; text-align: center;">
+        <div class="card">
+            <div class="card-body">
+                <h1 style="margin-bottom: 24px;">🔒 Trang thanh toán giả lập</h1>
+                
+                <div style="background: #f5f5f5; padding: 24px; border-radius: 8px; margin-bottom: 24px;">
+                    <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">Số tiền</div>
+                    <div style="font-size: 32px; font-weight: 700;" th:text="${amount} + 'đ'"></div>
+                </div>
+                
+                <div style="text-align: left; margin-bottom: 24px;">
+                    <div style="margin-bottom: 8px;"><strong>Gói:</strong> <span th:text="${planName}"></span></div>
+                    <div style="margin-bottom: 8px;"><strong>Thời hạn:</strong> <span th:text="${months}"></span> tháng</div>
+                    <div><strong>Subscription ID:</strong> <span th:text="${subscriptionId}"></span></div>
+                </div>
+                
+                <div style="display: flex; gap: 16px;">
+                    <a th:href="@{/teacher/payment/success(subscriptionId=${subscriptionId}, orderCode=${orderCode})}" 
+                       class="btn" style="flex: 1;">
+                        ✅ Thanh toán thành công
+                    </a>
+                    <a th:href="@{/teacher/payment/cancel(subscriptionId=${subscriptionId})}" 
+                       class="btn btn-ghost" style="flex: 1;">
+                        ❌ Hủy thanh toán
+                    </a>
+                </div>
+                
+                <div style="margin-top: 24px; padding: 16px; background: #fff3cd; border-radius: 8px; font-size: 13px;">
+                    <strong>⚠️ Chế độ test:</strong> Đây là trang thanh toán giả lập để test. 
+                    Trong production sẽ redirect đến PayOS thật.
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

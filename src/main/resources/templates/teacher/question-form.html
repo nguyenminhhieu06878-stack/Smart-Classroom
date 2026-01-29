@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Question Form - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item active">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">
+                    <span th:if="${question.id == null}">Câu hỏi mới</span>
+                    <span th:if="${question.id != null}">Sửa câu hỏi</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 800px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="${question.id == null} ? @{/teacher/questions} : @{/teacher/questions/{id}(id=${question.id})}" 
+                                  method="post" th:object="${question}">
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Nội dung câu hỏi</label>
+                                    <textarea th:field="*{content}" class="form-textarea" rows="4" required></textarea>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Môn học</label>
+                                        <select th:field="*{subject}" class="form-select" required>
+                                            <option value="">Chọn môn học</option>
+                                            <option value="Toán">Toán</option>
+                                            <option value="Tiếng Việt">Tiếng Việt</option>
+                                            <option value="Tiếng Anh">Tiếng Anh</option>
+                                            <option value="Khoa học">Khoa học</option>
+                                            <option value="Lịch sử">Lịch sử</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Lớp</label>
+                                        <select th:field="*{grade}" class="form-select" required>
+                                            <option value="">Chọn lớp</option>
+                                            <option value="Lớp 1">Lớp 1</option>
+                                            <option value="Lớp 2">Lớp 2</option>
+                                            <option value="Lớp 3">Lớp 3</option>
+                                            <option value="Lớp 4">Lớp 4</option>
+                                            <option value="Lớp 5">Lớp 5</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Chủ đề</label>
+                                    <input type="text" th:field="*{topic}" class="form-input" 
+                                           placeholder="Ví dụ: Phép cộng trong phạm vi 100">
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Loại câu hỏi</label>
+                                    <select th:field="*{questionType}" class="form-select" id="questionType" required onchange="toggleOptions()">
+                                        <option value="MULTIPLE_CHOICE">Trắc nghiệm</option>
+                                        <option value="ESSAY">Tự luận</option>
+                                        <option value="TRUE_FALSE">Đúng/Sai</option>
+                                        <option value="FILL_BLANK">Điền vào chỗ trống</option>
+                                    </select>
+                                </div>
+
+                                <!-- Options cho trắc nghiệm -->
+                                <div id="multipleChoiceOptions" style="display: none;">
+                                    <div class="form-group">
+                                        <label class="form-label">A.</label>
+                                        <input type="text" th:field="*{optionA}" class="form-input" placeholder="Đáp án A">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">B.</label>
+                                        <input type="text" th:field="*{optionB}" class="form-input" placeholder="Đáp án B">
+                                    </div>
+                                    <div class="form-group" id="optionC">
+                                        <label class="form-label">C.</label>
+                                        <input type="text" th:field="*{optionC}" class="form-input" placeholder="Đáp án C">
+                                    </div>
+                                    <div class="form-group" id="optionD">
+                                        <label class="form-label">D.</label>
+                                        <input type="text" th:field="*{optionD}" class="form-input" placeholder="Đáp án D">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Đáp án đúng <span id="answerHint" style="color: var(--text-secondary); font-size: 13px;"></span></label>
+                                    <textarea th:field="*{correctAnswer}" class="form-textarea" rows="3" required></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Giải thích</label>
+                                    <textarea th:field="*{explanation}" class="form-textarea" rows="3"></textarea>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Độ khó</label>
+                                        <select th:field="*{difficulty}" class="form-select" required>
+                                            <option value="EASY">Dễ</option>
+                                            <option value="MEDIUM">Trung bình</option>
+                                            <option value="HARD">Khó</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Điểm</label>
+                                        <input type="number" th:field="*{points}" class="form-input" 
+                                               step="0.5" min="0" value="1.0" required>
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Sách tham khảo</label>
+                                        <input type="text" th:field="*{referenceBook}" class="form-input" 
+                                               placeholder="Ví dụ: SGK Toán 1">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Trang tham khảo</label>
+                                        <input type="text" th:field="*{referencePage}" class="form-input" 
+                                               placeholder="Ví dụ: 15">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <input type="checkbox" th:field="*{isPublic}" style="margin-right: 8px;">
+                                        Chia sẻ câu hỏi này công khai (chia sẻ với giáo viên khác)
+                                    </label>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px;">
+                                    <a href="/teacher/questions" class="btn">Hủy</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span th:if="${question.id == null}">Tạo câu hỏi</span>
+                                        <span th:if="${question.id != null}">Cập nhật câu hỏi</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        function toggleOptions() {
+            const questionType = document.getElementById('questionType').value;
+            const optionsDiv = document.getElementById('multipleChoiceOptions');
+            const optionC = document.getElementById('optionC');
+            const optionD = document.getElementById('optionD');
+            const answerHint = document.getElementById('answerHint');
+            
+            if (questionType === 'MULTIPLE_CHOICE') {
+                optionsDiv.style.display = 'block';
+                optionC.style.display = 'block';
+                optionD.style.display = 'block';
+                answerHint.textContent = '(Nhập A, B, C hoặc D)';
+            } else if (questionType === 'TRUE_FALSE') {
+                optionsDiv.style.display = 'block';
+                optionC.style.display = 'none';
+                optionD.style.display = 'none';
+                answerHint.textContent = '(Nhập A hoặc B)';
+                // Set default values for TRUE/FALSE
+                const optionAInput = document.querySelector('input[name="optionA"]');
+                const optionBInput = document.querySelector('input[name="optionB"]');
+                if (!optionAInput.value) optionAInput.value = 'Đúng';
+                if (!optionBInput.value) optionBInput.value = 'Sai';
+            } else {
+                optionsDiv.style.display = 'none';
+                answerHint.textContent = '';
+            }
+        }
+        
+        // Gọi khi load trang
+        window.onload = function() {
+            toggleOptions();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ngân hàng câu hỏi - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item active">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Ngân hàng câu hỏi</div>
+                <div class="header-actions">
+                    <a href="/teacher/questions/ai-generate" class="btn">Tạo với AI</a>
+                    <a href="/teacher/questions/new" class="btn btn-primary">Câu hỏi mới</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Filters -->
+                <form method="get" class="card mb-lg">
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Môn học</label>
+                                <select name="subject" class="form-select" th:value="${subject}">
+                                    <option value="">Tất cả môn học</option>
+                                    <option value="Toán" th:selected="${subject == 'Toán'}">Toán</option>
+                                    <option value="Tiếng Việt" th:selected="${subject == 'Tiếng Việt'}">Tiếng Việt</option>
+                                    <option value="Tiếng Anh" th:selected="${subject == 'Tiếng Anh'}">Tiếng Anh</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Lớp</label>
+                                <select name="grade" class="form-select" th:value="${grade}">
+                                    <option value="">Tất cả lớp</option>
+                                    <option value="Lớp 1" th:selected="${grade == 'Lớp 1'}">Lớp 1</option>
+                                    <option value="Lớp 2" th:selected="${grade == 'Lớp 2'}">Lớp 2</option>
+                                    <option value="Lớp 3" th:selected="${grade == 'Lớp 3'}">Lớp 3</option>
+                                    <option value="Lớp 4" th:selected="${grade == 'Lớp 4'}">Lớp 4</option>
+                                    <option value="Lớp 5" th:selected="${grade == 'Lớp 5'}">Lớp 5</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Độ khó</label>
+                                <select name="difficulty" class="form-select" th:value="${difficulty}">
+                                    <option value="">Tất cả mức độ</option>
+                                    <option value="EASY" th:selected="${difficulty == 'EASY'}">Dễ</option>
+                                    <option value="MEDIUM" th:selected="${difficulty == 'MEDIUM'}">Trung bình</option>
+                                    <option value="HARD" th:selected="${difficulty == 'HARD'}">Khó</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Từ khóa</label>
+                                <input type="text" name="keyword" class="form-input" placeholder="Tìm theo chủ đề hoặc nội dung..." th:value="${keyword}">
+                            </div>
+                            <div style="display: flex; align-items: flex-end;">
+                                <button type="submit" class="btn" style="width: 100%;">Lọc</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Questions Table -->
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nội dung</th>
+                                <th>Môn học</th>
+                                <th>Lớp</th>
+                                <th>Độ khó</th>
+                                <th>Điểm</th>
+                                <th>Tham chiếu</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="q : ${questions}">
+                                <td th:text="${#strings.abbreviate(q.content, 80)}"></td>
+                                <td th:text="${q.subject}"></td>
+                                <td th:text="${q.grade}"></td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${q.difficulty.name() == 'EASY'} ? 'badge-success' : (${q.difficulty.name() == 'MEDIUM'} ? 'badge-warning' : 'badge-danger')"
+                                          th:text="${q.difficulty == T(com.smartclass.model.Question$Difficulty).EASY} ? 'Dễ' : (${q.difficulty == T(com.smartclass.model.Question$Difficulty).MEDIUM} ? 'TB' : 'Khó')"></span>
+                                </td>
+                                <td th:text="${q.points}"></td>
+                                <td>
+                                    <span class="text-sm text-secondary" th:if="${q.referenceBook != null and q.referencePage != null}" 
+                                          th:text="${q.referenceBook + ', tr.' + q.referencePage}"></span>
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        <a th:href="@{/teacher/questions/{id}/edit(id=${q.id})}" class="btn btn-sm">Sửa</a>
+                                        <form th:action="@{/teacher/questions/{id}/delete(id=${q.id})}" method="post">
+                                            <button type="submit" class="btn btn-sm" onclick="return confirm('Xóa câu hỏi này?')">Xóa</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div th:if="${totalPages != null and totalPages > 1}" style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px;">
+                    <div class="text-sm text-secondary">
+                        Hiển thị <span th:text="${questions.size()}"></span> trong tổng số <span th:text="${totalItems}"></span> câu hỏi
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <!-- First Page -->
+                        <a th:if="${currentPage > 0}" 
+                           th:href="@{/teacher/questions(page=0,size=${pageSize},subject=${subject},grade=${grade},difficulty=${difficulty},keyword=${keyword})}" 
+                           class="btn btn-sm">«</a>
+                        
+                        <!-- Previous Page -->
+                        <a th:if="${currentPage > 0}" 
+                           th:href="@{/teacher/questions(page=${currentPage - 1},size=${pageSize},subject=${subject},grade=${grade},difficulty=${difficulty},keyword=${keyword})}" 
+                           class="btn btn-sm">‹</a>
+                        
+                        <!-- Page Numbers -->
+                        <th:block th:if="${totalPages > 0}">
+                            <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                                  th:if="${i >= currentPage - 2 && i <= currentPage + 2}">
+                                <a th:if="${i != currentPage}" 
+                                   th:href="@{/teacher/questions(page=${i},size=${pageSize},subject=${subject},grade=${grade},difficulty=${difficulty},keyword=${keyword})}" 
+                                   class="btn btn-sm" 
+                                   th:text="${i + 1}"></a>
+                                <span th:if="${i == currentPage}" 
+                                      class="btn btn-sm btn-primary" 
+                                      th:text="${i + 1}"></span>
+                            </span>
+                        </th:block>
+                        
+                        <!-- Next Page -->
+                        <a th:if="${currentPage < totalPages - 1}" 
+                           th:href="@{/teacher/questions(page=${currentPage + 1},size=${pageSize},subject=${subject},grade=${grade},difficulty=${difficulty},keyword=${keyword})}" 
+                           class="btn btn-sm">›</a>
+                        
+                        <!-- Last Page -->
+                        <a th:if="${currentPage < totalPages - 1}" 
+                           th:href="@{/teacher/questions(page=${totalPages - 1},size=${pageSize},subject=${subject},grade=${grade},difficulty=${difficulty},keyword=${keyword})}" 
+                           class="btn btn-sm">»</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

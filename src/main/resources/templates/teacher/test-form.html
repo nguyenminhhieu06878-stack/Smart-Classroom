@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Form đề thi - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item active">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">
+                    <span th:if="${test.id == null}">Đề thi mới</span>
+                    <span th:if="${test.id != null}">Sửa đề thi</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 800px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="${test.id == null} ? @{/teacher/tests} : @{/teacher/tests/{id}(id=${test.id})}" 
+                                  method="post" th:object="${test}">
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Tiêu đề đề thi</label>
+                                    <input type="text" th:field="*{title}" class="form-input" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Phòng học</label>
+                                    <select th:field="*{classroom.id}" class="form-select">
+                                        <option value="">Không gán phòng (tất cả phòng)</option>
+                                        <option th:each="classroom : ${classrooms}" 
+                                                th:value="${classroom.id}" 
+                                                th:text="${classroom.name + ' (' + classroom.roomId + ')'}">
+                                        </option>
+                                    </select>
+                                    <small class="text-secondary text-sm">
+                                        Chọn phòng để chỉ học sinh trong phòng đó mới thấy đề thi này
+                                    </small>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Môn học</label>
+                                        <select th:field="*{subject}" class="form-select" required>
+                                            <option value="">Chọn môn học</option>
+                                            <option value="Toán">Toán</option>
+                                            <option value="Tiếng Việt">Tiếng Việt</option>
+                                            <option value="Tiếng Anh">Tiếng Anh</option>
+                                            <option value="Khoa học">Khoa học</option>
+                                            <option value="Lịch sử">Lịch sử</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Lớp</label>
+                                        <select th:field="*{grade}" class="form-select" required>
+                                            <option value="">Chọn lớp</option>
+                                            <option value="Lớp 1">Lớp 1</option>
+                                            <option value="Lớp 2">Lớp 2</option>
+                                            <option value="Lớp 3">Lớp 3</option>
+                                            <option value="Lớp 4">Lớp 4</option>
+                                            <option value="Lớp 5">Lớp 5</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Thời gian (phút)</label>
+                                        <input type="number" th:field="*{durationMinutes}" class="form-input" 
+                                               min="1" placeholder="45" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Tổng điểm</label>
+                                        <input type="number" th:field="*{totalPoints}" class="form-input" 
+                                               step="0.5" min="0" placeholder="10.0" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Ma trận đề thi (JSON)</label>
+                                    <textarea th:field="*{testMatrix}" class="form-textarea" rows="8" 
+                                              placeholder='{"matrix": [{"topic": "Phép cộng", "easy": 2, "medium": 1, "hard": 0}]}'></textarea>
+                                    <small class="text-secondary text-sm">
+                                        Định dạng JSON để mô tả cấu trúc đề thi theo chủ đề và độ khó
+                                    </small>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px;">
+                                    <a href="/teacher/tests" class="btn">Hủy</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span th:if="${test.id == null}">Tạo đề thi</span>
+                                        <span th:if="${test.id != null}">Cập nhật đề thi</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

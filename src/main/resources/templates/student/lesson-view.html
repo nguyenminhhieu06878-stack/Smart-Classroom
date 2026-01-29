@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${lesson.title}">Chi tiết bài giảng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a th:href="@{/student/dashboard}" class="nav-item">Bảng điều khiển</a>
+                <a th:href="@{/student/classrooms}" class="nav-item active">Lớp học</a>
+                <a th:href="@{/student/profile}" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Chi tiết bài giảng</div>
+            </header>
+
+            <div class="content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title" th:text="${lesson.title}">Tên bài giảng</h1>
+                        <div class="breadcrumb" th:if="${classroomId != null}">
+                            <a th:href="@{/student/dashboard}">Dashboard</a>
+                            <span>/</span>
+                            <a th:href="@{/student/classrooms}">Lớp học</a>
+                            <span>/</span>
+                            <a th:href="@{/student/classrooms/{id}(id=${classroomId})}">Chi tiết lớp</a>
+                            <span>/</span>
+                            <span th:text="${lesson.title}">Chi tiết</span>
+                        </div>
+                        <div class="breadcrumb" th:if="${classroomId == null}">
+                            <a th:href="@{/student/dashboard}">Dashboard</a>
+                            <span>/</span>
+                            <a th:href="@{/student/classrooms}">Lớp học</a>
+                            <span>/</span>
+                            <span th:text="${lesson.title}">Chi tiết</span>
+                        </div>
+                    </div>
+                    <div class="page-actions">
+                        <a th:href="@{/student/classrooms/{id}(id=${classroomId})}" 
+                           th:if="${classroomId != null}"
+                           class="btn btn-secondary">← Quay lại</a>
+                        <a th:href="@{/student/classrooms}" 
+                           th:if="${classroomId == null}"
+                           class="btn btn-secondary">← Quay lại</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Lesson Info -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--color-border);">
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Môn học</div>
+                                <div style="font-weight: 600;" th:text="${lesson.subject}">Toán</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Lớp</div>
+                                <div style="font-weight: 600;" th:text="${lesson.grade}">Lớp 1</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Chủ đề</div>
+                                <div style="font-weight: 600;" th:text="${lesson.topic}">Phép cộng</div>
+                            </div>
+                        </div>
+
+                        <!-- Learning Objectives -->
+                        <div style="margin-bottom: 32px;" th:if="${lesson.learningObjectives}">
+                            <h3 style="margin-bottom: 16px;">Mục tiêu học tập</h3>
+                            <div style="padding: 16px; background: #f5f5f5; border-radius: 8px; white-space: pre-wrap;" th:text="${lesson.learningObjectives}"></div>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="margin-bottom: 32px;">
+                            <h3 style="margin-bottom: 16px;">Nội dung bài giảng</h3>
+                            <div class="lesson-content" style="line-height: 1.8;">
+                                <div th:text="${lesson.content}" style="white-space: pre-wrap;"></div>
+                            </div>
+                        </div>
+                        
+                        <style>
+                            .lesson-content {
+                                font-size: 15px;
+                            }
+                            .lesson-content h1,
+                            .lesson-content h2,
+                            .lesson-content h3 {
+                                margin-top: 24px;
+                                margin-bottom: 12px;
+                                font-weight: 600;
+                            }
+                        </style>
+
+                        <!-- Mark as Complete -->
+                        <div style="text-align: center; padding-top: 24px; border-top: 1px solid var(--color-border);">
+                            <form th:action="@{/student/lessons/{id}/complete(id=${lesson.id})}" method="post">
+                                <button type="submit" class="btn btn-primary" style="min-width: 200px;">
+                                    ✓ Đánh dấu đã hoàn thành
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

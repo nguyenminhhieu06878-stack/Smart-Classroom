@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/student/dashboard" class="nav-item active">Bảng điều khiển</a>
+                <a href="/student/classrooms" class="nav-item">Lớp học</a>
+                <a href="/student/profile" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <div class="user-info">
+                    <span th:text="${student.fullName}"></span>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 12px;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Bảng điều khiển</div>
+            </header>
+
+            <div class="content">
+                <div class="content-header">
+                    <h1 class="content-title">Xin chào, <span th:text="${student.fullName}"></span></h1>
+                    <p class="content-subtitle">Học tập và làm bài kiểm tra</p>
+                </div>
+
+                <!-- Stats -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Bài giảng</div>
+                            <div style="font-size: 32px; font-weight: 600; margin-bottom: 8px;">
+                                <span th:text="${completedLessons}">0</span>/<span th:text="${lessonsCount}">0</span>
+                            </div>
+                            <div class="text-sm text-secondary">Đã hoàn thành</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Bài kiểm tra</div>
+                            <div style="font-size: 32px; font-weight: 600; margin-bottom: 8px;">
+                                <span th:text="${completedTests}">0</span>/<span th:text="${testsCount}">0</span>
+                            </div>
+                            <div class="text-sm text-secondary">Đã hoàn thành</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 800px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title mb-sm">Bài giảng</h3>
+                            <p class="text-secondary mb-lg">Xem bài giảng từ giáo viên</p>
+                            <a href="/student/lessons" class="btn">Xem bài giảng</a>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title mb-sm">Bài kiểm tra</h3>
+                            <p class="text-secondary mb-lg">Làm bài kiểm tra và xem điểm</p>
+                            <a href="/student/tests" class="btn">Xem bài kiểm tra</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

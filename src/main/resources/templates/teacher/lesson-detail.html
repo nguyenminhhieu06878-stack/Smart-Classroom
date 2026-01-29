@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${lesson.title} + ' - Smart Classroom'">Bài giảng - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item active">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title" th:text="${lesson.title}">Tiêu đề bài giảng</div>
+                <div class="header-actions">
+                    <a th:href="@{/teacher/lessons/{id}/edit(id=${lesson.id})}" class="btn">Sửa</a>
+                    <a href="/teacher/lessons" class="btn btn-primary">Quay lại</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 900px;">
+                    <!-- Thông tin cơ bản -->
+                    <div class="card mb-lg">
+                        <div class="card-body">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px;">
+                                <div>
+                                    <div class="text-sm text-secondary">Môn học</div>
+                                    <div class="text-md" th:text="${lesson.subject}">Toán</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Lớp</div>
+                                    <div class="text-md" th:text="${lesson.grade}">Lớp 1</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Chủ đề</div>
+                                    <div class="text-md" th:text="${lesson.topic}">Phép cộng</div>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${lesson.learningObjectives}">
+                                <div class="text-sm text-secondary mb-sm">Mục tiêu học tập</div>
+                                <div class="text-md" th:text="${lesson.learningObjectives}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video YouTube -->
+                    <div th:if="${lesson.videoUrl}" class="card mb-lg">
+                        <div class="card-body">
+                            <h3 class="card-title mb-md">Video bài giảng</h3>
+                            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px;">
+                                <iframe 
+                                    th:src="@{https://www.youtube.com/embed/{videoId}(videoId=${#strings.contains(lesson.videoUrl, 'v=') ? #strings.substringAfter(lesson.videoUrl, 'v=').split('&')[0] : #strings.substringAfterLast(lesson.videoUrl, '/')})}"
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nội dung bài giảng -->
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title mb-md">Nội dung bài giảng</h3>
+                            <div style="white-space: pre-wrap; line-height: 1.6;" th:text="${lesson.content}">
+                                Nội dung bài giảng...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

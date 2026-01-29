@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lessons - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/student/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/student/classrooms" class="nav-item">Lớp học</a>
+                <a href="/student/profile" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <div class="user-info">
+                    <span>Học sinh</span>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 12px;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Bài giảng</div>
+            </header>
+
+            <div class="content">
+                <!-- Empty State -->
+                <div th:if="${#lists.isEmpty(lessons)}" class="empty-state">
+                    <div class="empty-state-title">Chưa có bài giảng</div>
+                    <p>Giáo viên chưa tạo bài giảng nào cho phòng của bạn</p>
+                </div>
+
+                <!-- Lessons Grid -->
+                <div th:if="${!#lists.isEmpty(lessons)}" 
+                     style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;">
+                    <div class="card" th:each="lesson : ${lessons}">
+                        <div class="card-body">
+                            <div th:if="${lesson.classroom != null}" 
+                                 style="display: inline-block; background: var(--bg-secondary); padding: 4px 12px; border-radius: 4px; font-size: 12px; margin-bottom: 12px;">
+                                <span th:text="${lesson.classroom.name}"></span>
+                            </div>
+                            <h3 class="card-title mb-sm" th:text="${lesson.title}">Tiêu đề bài giảng</h3>
+                            <div class="text-sm text-secondary mb-md">
+                                <span th:text="${lesson.subject}"></span> • 
+                                <span th:text="${lesson.grade}"></span>
+                            </div>
+                            <p class="text-sm text-secondary mb-lg" 
+                               th:text="${#strings.abbreviate(lesson.content, 100)}">
+                                Nội dung bài giảng...
+                            </p>
+                            <a th:href="@{/student/lessons/{id}(id=${lesson.id})}" class="btn btn-sm">Xem bài giảng</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

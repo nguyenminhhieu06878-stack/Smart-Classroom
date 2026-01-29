@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo đề thi - Bước 3 - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .matrix-section {
+            margin-bottom: 32px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .difficulty-group {
+            margin-bottom: 24px;
+        }
+        .question-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .question-item:hover {
+            border-color: #000;
+            background: #f9fafb;
+        }
+        .question-item.selected {
+            border-color: #000;
+            background: #f0f0f0;
+        }
+        .question-item input[type="checkbox"] {
+            margin-right: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item active">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Tạo đề thi từ ngân hàng câu hỏi</div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 1000px;">
+                    <!-- Progress Steps -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 32px; padding: 0 20px;">
+                        <div style="flex: 1; text-align: center; opacity: 0.6;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">✓</div>
+                            <div style="font-size: 14px;">Thông tin cơ bản</div>
+                        </div>
+                        <div style="flex: 1; text-align: center; opacity: 0.6;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">✓</div>
+                            <div style="font-size: 14px;">Thiết kế ma trận</div>
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">3</div>
+                            <div style="font-size: 14px; font-weight: 500;">Chọn câu hỏi</div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-lg">
+                        <div class="card-body">
+                            <h3 class="card-title mb-sm">Bước 3: Chọn câu hỏi từ ngân hàng</h3>
+                            <p class="text-sm text-secondary">
+                                Chọn câu hỏi phù hợp cho từng ô trong ma trận đề thi
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <form th:action="@{/teacher/tests/builder/create}" method="post">
+                        <!-- Hidden fields -->
+                        <input type="hidden" name="title" th:value="${title}">
+                        <input type="hidden" name="subject" th:value="${subject}">
+                        <input type="hidden" name="grade" th:value="${grade}">
+                        <input type="hidden" name="duration" th:value="${duration}">
+                        <input type="hidden" name="matrixJson" th:value="${matrixJson}">
+
+                        <!-- Matrix sections -->
+                        <div th:each="section, iterStat : ${matrixSections}" class="matrix-section">
+                            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;" 
+                                th:text="${section.topic}">Chủ đề</h4>
+
+                            <!-- Easy questions -->
+                            <div th:if="${section.easyCount > 0}" class="difficulty-group">
+                                <div style="font-weight: 500; margin-bottom: 12px; color: #059669;">
+                                    Câu dễ (chọn <span th:text="${section.easyCount}"></span> câu)
+                                </div>
+                                <div th:if="${#lists.isEmpty(section.easyQuestions)}" class="text-sm text-secondary">
+                                    Không có câu hỏi phù hợp trong ngân hàng
+                                </div>
+                                <div th:each="q : ${section.easyQuestions}" class="question-item" 
+                                     onclick="toggleQuestion(this)">
+                                    <input type="checkbox" 
+                                           th:name="'questions_' + ${iterStat.index} + '_easy[]'" 
+                                           th:value="${q.id}"
+                                           th:attr="data-max=${section.easyCount}">
+                                    <span th:text="${q.content}"></span>
+                                    <span class="text-sm text-secondary" 
+                                          th:text="' (' + ${q.points} + ' điểm)'"></span>
+                                    <span th:if="${q.createdBy.name() == 'AI'}" 
+                                          class="badge badge-primary" 
+                                          style="margin-left: 8px; font-size: 11px;">AI</span>
+                                </div>
+                            </div>
+
+                            <!-- Medium questions -->
+                            <div th:if="${section.mediumCount > 0}" class="difficulty-group">
+                                <div style="font-weight: 500; margin-bottom: 12px; color: #f59e0b;">
+                                    Câu trung bình (chọn <span th:text="${section.mediumCount}"></span> câu)
+                                </div>
+                                <div th:if="${#lists.isEmpty(section.mediumQuestions)}" class="text-sm text-secondary">
+                                    Không có câu hỏi phù hợp trong ngân hàng
+                                </div>
+                                <div th:each="q : ${section.mediumQuestions}" class="question-item" 
+                                     onclick="toggleQuestion(this)">
+                                    <input type="checkbox" 
+                                           th:name="'questions_' + ${iterStat.index} + '_medium[]'" 
+                                           th:value="${q.id}"
+                                           th:attr="data-max=${section.mediumCount}">
+                                    <span th:text="${q.content}"></span>
+                                    <span class="text-sm text-secondary" 
+                                          th:text="' (' + ${q.points} + ' điểm)'"></span>
+                                    <span th:if="${q.createdBy.name() == 'AI'}" 
+                                          class="badge badge-primary" 
+                                          style="margin-left: 8px; font-size: 11px;">AI</span>
+                                </div>
+                            </div>
+
+                            <!-- Hard questions -->
+                            <div th:if="${section.hardCount > 0}" class="difficulty-group">
+                                <div style="font-weight: 500; margin-bottom: 12px; color: #dc2626;">
+                                    Câu khó (chọn <span th:text="${section.hardCount}"></span> câu)
+                                </div>
+                                <div th:if="${#lists.isEmpty(section.hardQuestions)}" class="text-sm text-secondary">
+                                    Không có câu hỏi phù hợp trong ngân hàng
+                                </div>
+                                <div th:each="q : ${section.hardQuestions}" class="question-item" 
+                                     onclick="toggleQuestion(this)">
+                                    <input type="checkbox" 
+                                           th:name="'questions_' + ${iterStat.index} + '_hard[]'" 
+                                           th:value="${q.id}"
+                                           th:attr="data-max=${section.hardCount}">
+                                    <span th:text="${q.content}"></span>
+                                    <span class="text-sm text-secondary" 
+                                          th:text="' (' + ${q.points} + ' điểm)'"></span>
+                                    <span th:if="${q.createdBy.name() == 'AI'}" 
+                                          class="badge badge-primary" 
+                                          style="margin-left: 8px; font-size: 11px;">AI</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 32px;">
+                            <button type="button" class="btn" onclick="history.back()">← Quay lại</button>
+                            <button type="submit" class="btn btn-primary">Tạo đề thi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleQuestion(element) {
+            const checkbox = element.querySelector('input[type="checkbox"]');
+            const max = parseInt(checkbox.getAttribute('data-max'));
+            const name = checkbox.name;
+            
+            // Toggle checkbox
+            checkbox.checked = !checkbox.checked;
+            
+            // Update visual state
+            if (checkbox.checked) {
+                element.classList.add('selected');
+            } else {
+                element.classList.remove('selected');
+            }
+            
+            // Check max limit
+            const checked = document.querySelectorAll(`input[name="${name}"]:checked`).length;
+            if (checked > max) {
+                checkbox.checked = false;
+                element.classList.remove('selected');
+                alert(`Chỉ được chọn tối đa ${max} câu`);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--color-bg-secondary);
+        }
+        .login-box {
+            width: 100%;
+            max-width: 480px;
+            padding: var(--spacing-xl);
+        }
+        .login-card {
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+        .demo-accounts {
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-xl);
+            border-top: 1px solid var(--color-border);
+        }
+        .demo-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--spacing-md);
+        }
+        .demo-account {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-family: var(--font-mono);
+            margin-bottom: var(--spacing-xs);
+        }
+        .btn-login {
+            width: 100%;
+            height: 44px;
+            margin-top: var(--spacing-md);
+        }
+        .classroom-code-field {
+            display: none;
+        }
+        .classroom-code-field.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-card">
+                <div class="login-header">
+                    <div class="login-title">Smart Classroom</div>
+                    <div class="login-subtitle">Đăng nhập vào tài khoản</div>
+                </div>
+                
+                <div th:if="${param.error}" class="alert alert-danger">
+                    Email hoặc mật khẩu không đúng
+                </div>
+                
+                <div th:if="${param.logout}" class="alert alert-success">
+                    Đã đăng xuất thành công
+                </div>
+                
+                <form th:action="@{/login}" method="post" id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Đăng nhập với vai trò</label>
+                        <select name="loginRole" id="loginRole" class="form-input" required>
+                            <option value="">Chọn vai trò...</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="TEACHER">Giáo viên</option>
+                            <option value="STUDENT">Học sinh</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Địa chỉ email</label>
+                        <input type="email" name="username" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mật khẩu</label>
+                        <input type="password" name="password" class="form-input" required>
+                    </div>
+                    
+                    <!-- Classroom Code (only for students) -->
+                    <div id="classroomCodeField" class="classroom-code-field">
+                        <div class="form-group">
+                            <label class="form-label">Mã phòng học (tùy chọn)</label>
+                            <input type="text" name="classroomCode" class="form-input" placeholder="Ví dụ: TC001">
+                            <small style="color: var(--color-text-secondary); font-size: 12px;">
+                                Nhập mã phòng học để tự động tham gia lớp
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-login">Đăng nhập</button>
+                </form>
+                
+                <div class="login-link" style="text-align: center; margin-top: 20px; font-size: 14px; color: var(--color-text-secondary);">
+                    Chưa có tài khoản? <a th:href="@{/register}" style="color: var(--color-primary); text-decoration: none; font-weight: 500;">Đăng ký ngay</a>
+                </div>
+                
+                <div class="demo-accounts">
+                    <div class="demo-title">Tài khoản demo</div>
+                    <div class="demo-account">admin@smartclass.vn / admin123</div>
+                    <div class="demo-account">teacher@smartclass.vn / teacher123</div>
+                    <div class="demo-account">student@smartclass.vn / student123</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Show/hide classroom code field based on role selection
+        const roleSelect = document.getElementById('loginRole');
+        const classroomCodeField = document.getElementById('classroomCodeField');
+        
+        roleSelect.addEventListener('change', function() {
+            if (this.value === 'STUDENT') {
+                classroomCodeField.classList.add('show');
+            } else {
+                classroomCodeField.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

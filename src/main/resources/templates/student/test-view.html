@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${test.title}">Chi tiết bài kiểm tra</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a th:href="@{/student/dashboard}" class="nav-item">Bảng điều khiển</a>
+                <a th:href="@{/student/classrooms}" class="nav-item">Lớp học</a>
+                <a th:href="@{/student/profile}" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Chi tiết bài kiểm tra</div>
+            </header>
+
+            <div class="content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title" th:text="${test.title}">Tên bài kiểm tra</h1>
+                        <div class="breadcrumb" th:if="${classroomId != null}">
+                            <a th:href="@{/student/dashboard}">Dashboard</a>
+                            <span>/</span>
+                            <a th:href="@{/student/classrooms}">Lớp học</a>
+                            <span>/</span>
+                            <a th:href="@{/student/classrooms/{id}(id=${classroomId})}">Chi tiết lớp</a>
+                            <span>/</span>
+                            <span th:text="${test.title}">Chi tiết</span>
+                        </div>
+                        <div class="breadcrumb" th:if="${classroomId == null}">
+                            <a th:href="@{/student/dashboard}">Dashboard</a>
+                            <span>/</span>
+                            <a th:href="@{/student/classrooms}">Lớp học</a>
+                            <span>/</span>
+                            <span th:text="${test.title}">Chi tiết</span>
+                        </div>
+                    </div>
+                    <div class="page-actions">
+                        <a th:href="@{/student/classrooms/{id}(id=${classroomId})}" 
+                           th:if="${classroomId != null}"
+                           class="btn btn-secondary">← Quay lại</a>
+                        <a th:href="@{/student/classrooms}" 
+                           th:if="${classroomId == null}"
+                           class="btn btn-secondary">← Quay lại</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Test Info -->
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--color-border);">
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Môn học</div>
+                                <div style="font-weight: 600;" th:text="${test.subject}">Toán</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Lớp</div>
+                                <div style="font-weight: 600;" th:text="${test.grade}">Lớp 1</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Thời gian</div>
+                                <div style="font-weight: 600;"><span th:text="${test.durationMinutes}">45</span> phút</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Tổng điểm</div>
+                                <div style="font-weight: 600;"><span th:text="${test.totalPoints}">10</span> điểm</div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div style="margin-bottom: 32px;">
+                            <div th:if="${studentTest.status.name() == 'PENDING'}" 
+                                 style="padding: 16px; background: #e3f2fd; border-radius: 8px; text-align: center;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">Bài kiểm tra chưa làm</div>
+                                <div style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 16px;">
+                                    Bài kiểm tra có <span th:text="${test.testQuestions.size()}">10</span> câu hỏi
+                                </div>
+                                <form th:action="@{/student/tests/{id}/start(id=${test.id})}" method="post">
+                                    <input type="hidden" name="classroomId" th:value="${classroomId}" th:if="${classroomId != null}">
+                                    <button type="submit" class="btn btn-primary">Bắt đầu làm bài</button>
+                                </form>
+                            </div>
+
+                            <div th:if="${studentTest.status.name() == 'IN_PROGRESS'}" 
+                                 style="padding: 16px; background: #fff3cd; border-radius: 8px; text-align: center;">
+                                <div style="font-weight: 600; margin-bottom: 8px;">Đang làm bài</div>
+                                <div style="font-size: 14px; color: var(--color-text-secondary); margin-bottom: 16px;">
+                                    Bắt đầu lúc: <span th:text="${#temporals.format(studentTest.startedAt, 'HH:mm dd/MM/yyyy')}"></span>
+                                </div>
+                                <a th:href="@{/student/tests/{id}/take(id=${test.id},classroomId=${classroomId})}" 
+                                   th:if="${classroomId != null}"
+                                   class="btn btn-primary">Tiếp tục làm bài</a>
+                                <a th:href="@{/student/tests/{id}/take(id=${test.id})}" 
+                                   th:if="${classroomId == null}"
+                                   class="btn btn-primary">Tiếp tục làm bài</a>
+                            </div>
+
+                            <div th:if="${studentTest.status.name() == 'GRADED'}" 
+                                 style="padding: 16px; background: #d4edda; border-radius: 8px;">
+                                <div style="font-weight: 600; margin-bottom: 8px; text-align: center;">Đã hoàn thành</div>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px;">
+                                    <div style="text-align: center;">
+                                        <div style="color: var(--color-text-secondary); font-size: 13px;">Điểm số</div>
+                                        <div style="font-size: 24px; font-weight: 600; color: #28a745;">
+                                            <span th:text="${studentTest.score}">8.5</span>/<span th:text="${test.totalPoints}">10</span>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div style="color: var(--color-text-secondary); font-size: 13px;">Hoàn thành lúc</div>
+                                        <div style="font-weight: 600;" th:text="${#temporals.format(studentTest.completedAt, 'HH:mm dd/MM/yyyy')}"></div>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <div style="color: var(--color-text-secondary); font-size: 13px;">Thời gian làm bài</div>
+                                        <div style="font-weight: 600;">-- phút</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Test Page</h1>
+    <p>Total Items: <span th:text="${totalItems}">0</span></p>
+    <p>Total Pages: <span th:text="${totalPages}">0</span></p>
+    <p>Current Page: <span th:text="${currentPage}">0</span></p>
+    
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Content</th>
+        </tr>
+        <tr th:each="q : ${questions}">
+            <td th:text="${q.id}">1</td>
+            <td th:text="${q.content}">Question</td>
+        </tr>
+    </table>
+</body>
+</html>

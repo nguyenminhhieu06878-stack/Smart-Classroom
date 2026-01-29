@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tham gia lớp học - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/student/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/student/classrooms" class="nav-item">Lớp học</a>
+                <a href="/student/profile" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Tham gia lớp học</div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 500px; margin: 0 auto;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title mb-md">Nhập mã lớp học</h3>
+                            <p class="text-sm text-secondary mb-lg">
+                                Nhập mã lớp học (Room ID) mà giáo viên đã cung cấp để tham gia lớp
+                            </p>
+                            
+                            <div th:if="${error}" class="alert alert-error mb-md" th:text="${error}"></div>
+                            <div th:if="${success}" class="alert alert-success mb-md" th:text="${success}"></div>
+                            
+                            <form th:action="@{/student/join}" method="post">
+                                <div class="form-group">
+                                    <label class="form-label">Mã lớp học</label>
+                                    <input type="text" name="roomId" class="form-input" 
+                                           placeholder="Ví dụ: TC001" 
+                                           style="font-size: 18px; text-align: center; letter-spacing: 2px;"
+                                           required>
+                                    <small class="text-secondary text-sm">
+                                        Mã lớp học gồm 5 ký tự, ví dụ: TC001
+                                    </small>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 24px;">
+                                    Tham gia lớp
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 24px;">
+                        <div class="card-body">
+                            <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">
+                                Làm sao để lấy mã lớp học?
+                            </h4>
+                            <ul style="font-size: 14px; color: #666; line-height: 1.6; padding-left: 20px;">
+                                <li>Hỏi giáo viên của bạn để lấy mã lớp học</li>
+                                <li>Mã lớp học thường có dạng: TC001, TC002,...</li>
+                                <li>Mỗi giáo viên có một mã lớp riêng</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

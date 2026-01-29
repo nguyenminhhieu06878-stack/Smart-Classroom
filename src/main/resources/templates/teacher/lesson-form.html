@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Form - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item active">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">
+                    <span th:if="${lesson.id == null}">Bài giảng mới</span>
+                    <span th:if="${lesson.id != null}">Sửa bài giảng</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 900px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="${lesson.id == null} ? @{/teacher/lessons} : @{/teacher/lessons/{id}(id=${lesson.id})}" 
+                                  method="post" th:object="${lesson}">
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Tiêu đề bài giảng</label>
+                                    <input type="text" th:field="*{title}" class="form-input" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Phòng học</label>
+                                    <select th:field="*{classroom.id}" class="form-select">
+                                        <option value="">Không gán phòng (tất cả phòng)</option>
+                                        <option th:each="classroom : ${classrooms}" 
+                                                th:value="${classroom.id}" 
+                                                th:text="${classroom.name + ' (' + classroom.roomId + ')'}">
+                                        </option>
+                                    </select>
+                                    <small class="text-secondary text-sm">
+                                        Chọn phòng để chỉ học sinh trong phòng đó mới thấy bài giảng này
+                                    </small>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Môn học</label>
+                                        <select th:field="*{subject}" class="form-select" required>
+                                            <option value="">Chọn môn học</option>
+                                            <option value="Toán">Toán</option>
+                                            <option value="Tiếng Việt">Tiếng Việt</option>
+                                            <option value="Tiếng Anh">Tiếng Anh</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Lớp</label>
+                                        <select th:field="*{grade}" class="form-select" required>
+                                            <option value="">Chọn lớp</option>
+                                            <option value="Lớp 1">Lớp 1</option>
+                                            <option value="Lớp 2">Lớp 2</option>
+                                            <option value="Lớp 3">Lớp 3</option>
+                                            <option value="Lớp 4">Lớp 4</option>
+                                            <option value="Lớp 5">Lớp 5</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Chủ đề</label>
+                                        <input type="text" th:field="*{topic}" class="form-input">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Mục tiêu học tập</label>
+                                    <textarea th:field="*{learningObjectives}" class="form-textarea" rows="3"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Video YouTube (tùy chọn)</label>
+                                    <input type="text" th:field="*{videoUrl}" class="form-input" 
+                                           placeholder="https://www.youtube.com/watch?v=...">
+                                    <small class="text-secondary text-sm">
+                                        Dán link YouTube để tự động hiển thị video trong bài giảng
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Nội dung bài giảng</label>
+                                    <textarea th:field="*{content}" class="form-textarea" rows="12" required></textarea>
+                                </div>
+
+                                <div th:if="${generated}" class="alert alert-info">
+                                    Bài giảng này được tạo bởi AI. Xem lại và chỉnh sửa nếu cần trước khi lưu.
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px;">
+                                    <a href="/teacher/lessons" class="btn">Hủy</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span th:if="${lesson.id == null}">Tạo bài giảng</span>
+                                        <span th:if="${lesson.id != null}">Cập nhật bài giảng</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

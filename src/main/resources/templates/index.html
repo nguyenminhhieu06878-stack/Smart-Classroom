@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: var(--spacing-2xl);
+        }
+        .hero-content {
+            max-width: 800px;
+        }
+        .hero-title {
+            font-size: 56px;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.1;
+        }
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-xl);
+            line-height: 1.6;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-2xl);
+            padding: 0 var(--spacing-2xl);
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .feature-card {
+            padding: var(--spacing-xl);
+            text-align: left;
+        }
+        .feature-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+        .btn-hero {
+            height: 48px;
+            padding: 0 var(--spacing-xl);
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">Nền tảng Lớp học Thông minh</h1>
+            <p class="hero-subtitle">
+                Công cụ AI hỗ trợ giáo viên soạn bài giảng, tạo đề thi 
+                và quản lý lớp học hiệu quả
+            </p>
+            <a href="/login" class="btn btn-primary btn-hero">Bắt đầu ngay</a>
+        </div>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-title">Ngân hàng câu hỏi</div>
+            <p class="feature-desc">
+                Tạo và quản lý ngân hàng câu hỏi với sự hỗ trợ của AI. 
+                Phân loại theo môn học, độ khó và chủ đề.
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-title">Tạo đề thi tự động</div>
+            <p class="feature-desc">
+                Tự động tạo ma trận đề thi với AI. 
+                Tham chiếu trang sách và phân loại độ khó.
+            </p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-title">Soạn giáo án</div>
+            <p class="feature-desc">
+                AI giúp bạn tạo giáo án chi tiết với mục tiêu, 
+                hoạt động và đánh giá.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

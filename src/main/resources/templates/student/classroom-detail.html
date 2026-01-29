@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${classroom.name}">Chi tiết lớp học</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a th:href="@{/student/dashboard}" class="nav-item">Bảng điều khiển</a>
+                <a th:href="@{/student/classrooms}" class="nav-item active">Lớp học</a>
+                <a th:href="@{/student/profile}" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title" th:text="${classroom.name}">Tên lớp học</div>
+            </header>
+
+            <div class="content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title" th:text="${classroom.name}">Tên lớp học</h1>
+                        <div class="breadcrumb">
+                            <a th:href="@{/student/dashboard}">Dashboard</a>
+                            <span>/</span>
+                            <a th:href="@{/student/classrooms}">Lớp học</a>
+                            <span>/</span>
+                            <span th:text="${classroom.name}">Chi tiết</span>
+                        </div>
+                    </div>
+                    <div class="page-actions">
+                        <a th:href="@{/student/classrooms}" class="btn btn-secondary">← Quay lại</a>
+                    </div>
+                </div>
+
+                <!-- Classroom Info -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-body">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Mã lớp</div>
+                                <div style="font-weight: 600; font-family: monospace;" th:text="${classroom.roomId}">TC001</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Giáo viên</div>
+                                <div style="font-weight: 600;" th:text="${classroom.teacher.fullName}">Tên giáo viên</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Môn học</div>
+                                <div style="font-weight: 600;" th:text="${classroom.subject}">Toán</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--color-border);">
+                            <div style="color: var(--color-text-secondary); font-size: 13px; margin-bottom: 4px;">Mô tả</div>
+                            <div th:text="${classroom.description}">Mô tả lớp học</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lessons Section -->
+                <div class="card" style="margin-bottom: 24px;">
+                    <div class="card-header">
+                        <div class="card-title">Bài giảng</div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(lessons)}" class="text-secondary text-center" style="padding: 32px;">
+                            Chưa có bài giảng nào
+                        </div>
+                        <div th:if="${!#lists.isEmpty(lessons)}" style="display: grid; gap: 12px;">
+                            <a th:href="@{/student/lessons/{id}(id=${lesson.id},classroomId=${classroom.id})}" 
+                               th:each="lesson : ${lessons}"
+                               style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;"
+                               onmouseover="this.style.background='#f5f5f5'"
+                               onmouseout="this.style.background='white'">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;" th:text="${lesson.title}">Tên bài giảng</div>
+                                    <div style="font-size: 13px; color: var(--color-text-secondary);">
+                                        <span th:text="${lesson.subject}">Môn học</span> • 
+                                        <span th:text="${lesson.grade}">Lớp</span> • 
+                                        <span th:text="${lesson.topic}">Chủ đề</span>
+                                    </div>
+                                </div>
+                                <div style="color: var(--color-primary);">→</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tests Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Bài kiểm tra</div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${#lists.isEmpty(tests)}" class="text-secondary text-center" style="padding: 32px;">
+                            Chưa có bài kiểm tra nào
+                        </div>
+                        <div th:if="${!#lists.isEmpty(tests)}" style="display: grid; gap: 12px;">
+                            <a th:href="@{/student/tests/{id}(id=${test.id},classroomId=${classroom.id})}" 
+                               th:each="test : ${tests}"
+                               style="display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: inherit; transition: all 0.2s;"
+                               onmouseover="this.style.background='#f5f5f5'"
+                               onmouseout="this.style.background='white'">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;" th:text="${test.title}">Tên bài kiểm tra</div>
+                                    <div style="font-size: 13px; color: var(--color-text-secondary);">
+                                        <span th:text="${test.subject}">Môn học</span> • 
+                                        <span th:text="${test.grade}">Lớp</span> • 
+                                        <span th:text="${test.durationMinutes}">45</span> phút
+                                    </div>
+                                </div>
+                                <div style="color: var(--color-primary);">→</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

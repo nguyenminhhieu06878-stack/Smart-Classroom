@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${classroom.id != null ? 'Chỉnh sửa phòng học' : 'Tạo phòng học mới'} + ' - Smart Classroom'"></title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item active">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <div class="user-info">
+                    <span>Giáo viên</span>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 12px;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title" th:text="${classroom.id != null ? 'Chỉnh sửa phòng học' : 'Tạo phòng học mới'}"></div>
+            </header>
+
+            <div class="content">
+                <div class="card" style="max-width: 600px;">
+                    <div class="card-body">
+                        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+                        
+                        <form th:action="${classroom.id != null ? '/teacher/classrooms/' + classroom.id : '/teacher/classrooms'}" 
+                              th:object="${classroom}" 
+                              method="post">
+                            
+                            <div class="form-group">
+                                <label class="form-label">Tên lớp *</label>
+                                <input type="text" 
+                                       class="form-input" 
+                                       th:field="*{name}" 
+                                       placeholder="Ví dụ: Toán 1A"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Mã phòng *</label>
+                                <input type="text" 
+                                       class="form-input" 
+                                       th:field="*{roomId}" 
+                                       placeholder="Ví dụ: TC001"
+                                       pattern="[A-Z0-9]+"
+                                       title="Chỉ chữ in hoa và số"
+                                       required>
+                                <small style="color: var(--text-secondary); font-size: 13px;">
+                                    Học sinh sẽ dùng mã này để tham gia lớp
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Môn học *</label>
+                                <select class="form-input" th:field="*{subject}" required>
+                                    <option value="">Chọn môn học</option>
+                                    <option value="Toán">Toán</option>
+                                    <option value="Văn">Văn</option>
+                                    <option value="Tiếng Anh">Tiếng Anh</option>
+                                    <option value="Vật Lý">Vật Lý</option>
+                                    <option value="Hóa Học">Hóa Học</option>
+                                    <option value="Sinh Học">Sinh Học</option>
+                                    <option value="Lịch Sử">Lịch Sử</option>
+                                    <option value="Địa Lý">Địa Lý</option>
+                                    <option value="GDCD">GDCD</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Khối *</label>
+                                <select class="form-input" th:field="*{grade}" required>
+                                    <option value="">Chọn khối</option>
+                                    <option value="1">Lớp 1</option>
+                                    <option value="2">Lớp 2</option>
+                                    <option value="3">Lớp 3</option>
+                                    <option value="4">Lớp 4</option>
+                                    <option value="5">Lớp 5</option>
+                                    <option value="6">Lớp 6</option>
+                                    <option value="7">Lớp 7</option>
+                                    <option value="8">Lớp 8</option>
+                                    <option value="9">Lớp 9</option>
+                                    <option value="10">Lớp 10</option>
+                                    <option value="11">Lớp 11</option>
+                                    <option value="12">Lớp 12</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Mô tả</label>
+                                <textarea class="form-input" 
+                                          th:field="*{description}" 
+                                          rows="4"
+                                          placeholder="Mô tả về lớp học..."></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                                <button type="submit" class="btn">
+                                    <span th:text="${classroom.id != null ? 'Cập nhật' : 'Tạo phòng học'}"></span>
+                                </button>
+                                <a href="/teacher/classrooms" class="btn btn-ghost">Hủy</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

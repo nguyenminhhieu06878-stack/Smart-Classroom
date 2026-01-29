@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tạo đề thi - Bước 2 - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 80px;
+            gap: 12px;
+            align-items: end;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item active">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Tạo đề thi từ ngân hàng câu hỏi</div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 900px;">
+                    <!-- Progress Steps -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 32px; padding: 0 20px;">
+                        <div style="flex: 1; text-align: center; opacity: 0.6;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">✓</div>
+                            <div style="font-size: 14px;">Thông tin cơ bản</div>
+                        </div>
+                        <div style="flex: 1; text-align: center;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">2</div>
+                            <div style="font-size: 14px; font-weight: 500;">Thiết kế ma trận</div>
+                        </div>
+                        <div style="flex: 1; text-align: center; opacity: 0.4;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;">3</div>
+                            <div style="font-size: 14px;">Chọn câu hỏi</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title mb-md">Bước 2: Thiết kế ma trận đề thi</h3>
+                            <p class="text-sm text-secondary mb-lg">
+                                Xác định cấu trúc đề thi: chủ đề nào cần bao nhiêu câu ở mỗi mức độ
+                            </p>
+                            
+                            <form th:action="@{/teacher/tests/builder/step3}" method="post">
+                                <!-- Hidden fields from step 1 -->
+                                <input type="hidden" name="title" th:value="${title}">
+                                <input type="hidden" name="subject" th:value="${subject}">
+                                <input type="hidden" name="grade" th:value="${grade}">
+                                <input type="hidden" name="duration" th:value="${duration}">
+                                <input type="hidden" name="questionSource" th:value="${questionSource}">
+
+                                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 80px; gap: 12px; font-weight: 500; font-size: 14px; margin-bottom: 12px;">
+                                        <div>Chủ đề</div>
+                                        <div>Câu dễ</div>
+                                        <div>Câu TB</div>
+                                        <div>Câu khó</div>
+                                        <div></div>
+                                    </div>
+                                </div>
+
+                                <div id="matrix-rows">
+                                    <!-- Row 1 -->
+                                    <div class="matrix-row">
+                                        <input type="text" name="topics[]" class="form-input" 
+                                               placeholder="Ví dụ: Phép cộng trong phạm vi 10" required>
+                                        <input type="number" name="easy[]" class="form-input" 
+                                               value="2" min="0" required>
+                                        <input type="number" name="medium[]" class="form-input" 
+                                               value="1" min="0" required>
+                                        <input type="number" name="hard[]" class="form-input" 
+                                               value="0" min="0" required>
+                                        <button type="button" class="btn btn-sm" onclick="removeRow(this)">Xóa</button>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-sm" onclick="addRow()" style="margin-bottom: 24px;">
+                                    + Thêm chủ đề
+                                </button>
+
+                                <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 32px;">
+                                    <a href="/teacher/tests/builder/step1" class="btn">← Quay lại</a>
+                                    <button type="submit" class="btn btn-primary">Tiếp theo →</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function addRow() {
+            const container = document.getElementById('matrix-rows');
+            const row = document.createElement('div');
+            row.className = 'matrix-row';
+            row.innerHTML = `
+                <input type="text" name="topics[]" class="form-input" placeholder="Chủ đề" required>
+                <input type="number" name="easy[]" class="form-input" value="0" min="0" required>
+                <input type="number" name="medium[]" class="form-input" value="0" min="0" required>
+                <input type="number" name="hard[]" class="form-input" value="0" min="0" required>
+                <button type="button" class="btn btn-sm" onclick="removeRow(this)">Xóa</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeRow(button) {
+            const rows = document.querySelectorAll('.matrix-row');
+            if (rows.length > 1) {
+                button.closest('.matrix-row').remove();
+            } else {
+                alert('Phải có ít nhất 1 chủ đề');
+            }
+        }
+    </script>
+</body>
+</html>

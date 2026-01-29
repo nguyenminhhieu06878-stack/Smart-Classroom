@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Smart Classroom Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item active">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Người dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Bảng điều khiển</div>
+            </header>
+
+            <div class="content">
+                <!-- Stats Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Tổng người dùng</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${totalUsers}">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Giáo viên</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${teachers}">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Học sinh</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${students}">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Gói đang hoạt động</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${activeSubscriptions}">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Section -->
+                <div class="card mb-lg">
+                    <div class="card-body">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 24px;">
+                            <div>
+                                <h3 class="card-title mb-sm">Doanh thu 30 ngày qua</h3>
+                                <div style="font-size: 36px; font-weight: 600; margin-bottom: 4px;">
+                                    <span th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')}">0</span>đ
+                                </div>
+                                <div class="text-sm text-secondary">Tổng doanh thu trong tháng</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chart -->
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Stats -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Ngân hàng câu hỏi</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${totalQuestions}">0</div>
+                            <div class="text-sm text-secondary">Tổng số câu hỏi</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Bài giảng</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${totalLessons}">0</div>
+                            <div class="text-sm text-secondary">Tổng số bài giảng</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Đề thi</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${totalTests}">0</div>
+                            <div class="text-sm text-secondary">Tổng số đề thi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Subscriptions -->
+                <div th:if="${!#lists.isEmpty(recentSubscriptions)}" class="card">
+                    <div class="card-body">
+                        <h3 class="card-title mb-md">Gói đăng ký gần đây</h3>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Người dùng</th>
+                                        <th>Gói</th>
+                                        <th>Số tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày đăng ký</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="sub : ${recentSubscriptions}">
+                                        <td th:text="${sub.user.fullName}"></td>
+                                        <td th:text="${sub.plan.name}"></td>
+                                        <td th:text="${#numbers.formatDecimal(sub.amount, 0, 'COMMA', 0, 'POINT')} + 'đ'"></td>
+                                        <td>
+                                            <span th:if="${sub.status.name() == 'ACTIVE'}" class="badge" style="background: #10b981;">Hoạt động</span>
+                                            <span th:if="${sub.status.name() == 'EXPIRED'}" class="badge" style="background: #ef4444;">Hết hạn</span>
+                                            <span th:if="${sub.status.name() == 'CANCELLED'}" class="badge" style="background: #6b7280;">Đã hủy</span>
+                                        </td>
+                                        <td class="text-sm" th:text="${#temporals.format(sub.createdAt, 'dd/MM/yyyy')}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        const ctx = document.getElementById('revenueChart');
+        const labels = /*[[${chartLabels}]]*/ [];
+        const data = /*[[${chartData}]]*/ [];
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (VNĐ)',
+                    data: data,
+                    borderColor: '#000',
+                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#000',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#000',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 12,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return new Intl.NumberFormat('vi-VN').format(context.parsed.y) + 'đ';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0',
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', {
+                                    notation: 'compact',
+                                    compactDisplay: 'short'
+                                }).format(value) + 'đ';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

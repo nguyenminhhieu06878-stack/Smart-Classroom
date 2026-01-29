@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${test.title}">Làm bài kiểm tra</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .question-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .question-number {
+            display: inline-block;
+            background: var(--color-primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .question-content {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .option-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-item:hover {
+            background: #f5f5f5;
+            border-color: var(--color-primary);
+        }
+        .option-item input[type="radio"] {
+            margin-right: 12px;
+            margin-top: 4px;
+        }
+        .option-item input[type="radio"]:checked + label {
+            font-weight: 600;
+        }
+        .option-item.selected {
+            background: #e3f2fd;
+            border-color: var(--color-primary);
+        }
+        .essay-answer {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            resize: vertical;
+        }
+        .essay-answer:focus {
+            outline: none;
+            border-color: var(--color-primary);
+        }
+        .timer-box {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: white;
+            border: 2px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .timer-label {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            margin-bottom: 4px;
+        }
+        .timer-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a th:href="@{/student/dashboard}" class="nav-item">Bảng điều khiển</a>
+                <a th:href="@{/student/classrooms}" class="nav-item">Lớp học</a>
+                <a th:href="@{/student/profile}" class="nav-item">Hồ sơ</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title" th:text="${test.title}">Làm bài kiểm tra</div>
+            </header>
+
+            <!-- Timer -->
+            <div class="timer-box" th:if="${test.durationMinutes != null}">
+                <div class="timer-label">Thời gian còn lại</div>
+                <div class="timer-value" id="timer">
+                    <span th:text="${test.durationMinutes}">45</span>:00
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title" th:text="${test.title}">Tên bài kiểm tra</h1>
+                        <div style="color: var(--color-text-secondary); margin-top: 8px;">
+                            <span th:text="${test.testQuestions.size()}">10</span> câu hỏi • 
+                            <span th:text="${test.totalPoints}">10</span> điểm
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/student/tests/{id}/submit(id=${test.id})}" method="post" id="testForm">
+                    <input type="hidden" name="answers" id="answersInput">
+                    <input type="hidden" name="classroomId" th:value="${classroomId}" th:if="${classroomId != null}">
+                    
+                    <!-- Questions -->
+                    <div th:each="tq, iterStat : ${test.testQuestions}" class="question-card">
+                        <div class="question-number">
+                            Câu <span th:text="${iterStat.index + 1}">1</span>
+                            <span style="font-weight: normal; margin-left: 8px;">
+                                (<span th:text="${tq.customPoints != null ? tq.customPoints : tq.question.points}">1</span> điểm)
+                            </span>
+                        </div>
+                        
+                        <div class="question-content" th:text="${tq.question.content}">Nội dung câu hỏi</div>
+                        
+                        <!-- Multiple Choice -->
+                        <div th:if="${tq.question.questionType.name() == 'MULTIPLE_CHOICE'}">
+                            <div class="option-item">
+                                <input type="radio" 
+                                       th:id="'q' + ${tq.question.id} + '_A'"
+                                       th:name="'question_' + ${tq.question.id}"
+                                       value="A"
+                                       class="answer-input">
+                                <label th:for="'q' + ${tq.question.id} + '_A'" style="flex: 1; cursor: pointer;">
+                                    <strong>A.</strong>
+                                    <span th:text="${tq.question.optionA != null and !#strings.isEmpty(tq.question.optionA) ? tq.question.optionA : '[Chưa có đáp án A]'}">Đáp án A</span>
+                                </label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" 
+                                       th:id="'q' + ${tq.question.id} + '_B'"
+                                       th:name="'question_' + ${tq.question.id}"
+                                       value="B"
+                                       class="answer-input">
+                                <label th:for="'q' + ${tq.question.id} + '_B'" style="flex: 1; cursor: pointer;">
+                                    <strong>B.</strong>
+                                    <span th:text="${tq.question.optionB != null and !#strings.isEmpty(tq.question.optionB) ? tq.question.optionB : '[Chưa có đáp án B]'}">Đáp án B</span>
+                                </label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" 
+                                       th:id="'q' + ${tq.question.id} + '_C'"
+                                       th:name="'question_' + ${tq.question.id}"
+                                       value="C"
+                                       class="answer-input">
+                                <label th:for="'q' + ${tq.question.id} + '_C'" style="flex: 1; cursor: pointer;">
+                                    <strong>C.</strong>
+                                    <span th:text="${tq.question.optionC != null and !#strings.isEmpty(tq.question.optionC) ? tq.question.optionC : '[Chưa có đáp án C]'}">Đáp án C</span>
+                                </label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" 
+                                       th:id="'q' + ${tq.question.id} + '_D'"
+                                       th:name="'question_' + ${tq.question.id}"
+                                       value="D"
+                                       class="answer-input">
+                                <label th:for="'q' + ${tq.question.id} + '_D'" style="flex: 1; cursor: pointer;">
+                                    <strong>D.</strong>
+                                    <span th:text="${tq.question.optionD != null and !#strings.isEmpty(tq.question.optionD) ? tq.question.optionD : '[Chưa có đáp án D]'}">Đáp án D</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- True/False -->
+                        <div th:if="${tq.question.questionType.name() == 'TRUE_FALSE'}">
+                            <div class="option-item">
+                                <input type="radio" 
+                                       th:id="'q' + ${tq.question.id} + '_true'"
+                                       th:name="'question_' + ${tq.question.id}"
+                                       value="Đúng"
+                                       class="answer-input">
+                                <label th:for="'q' + ${tq.question.id} + '_true'" style="flex: 1; cursor: pointer;">
+                                    <strong>Đúng</strong>
+                                </label>
+                            </div>
+                            <div class="option-item">
+                                <input type="radio" 
+                                       th:id="'q' + ${tq.question.id} + '_false'"
+                                       th:name="'question_' + ${tq.question.id}"
+                                       value="Sai"
+                                       class="answer-input">
+                                <label th:for="'q' + ${tq.question.id} + '_false'" style="flex: 1; cursor: pointer;">
+                                    <strong>Sai</strong>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Essay or Fill Blank -->
+                        <div th:if="${tq.question.questionType.name() == 'ESSAY' || tq.question.questionType.name() == 'FILL_BLANK'}">
+                            <textarea 
+                                th:name="'question_' + ${tq.question.id}"
+                                class="essay-answer answer-input"
+                                th:placeholder="${tq.question.questionType.name() == 'ESSAY' ? 'Nhập câu trả lời của bạn...' : 'Điền vào chỗ trống...'}"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="text-align: center; margin-top: 32px; padding: 24px; background: white; border-radius: 8px; border: 1px solid var(--color-border);">
+                        <p style="margin-bottom: 16px; color: var(--color-text-secondary);">
+                            Hãy kiểm tra kỹ bài làm trước khi nộp. Bạn không thể sửa sau khi nộp bài.
+                        </p>
+                        <button type="submit" class="btn btn-primary" style="min-width: 200px;">
+                            Nộp bài
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Collect answers before submit
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const answers = {};
+            const inputs = document.querySelectorAll('.answer-input');
+            
+            inputs.forEach(input => {
+                const questionId = input.name.replace('question_', '');
+                
+                if (input.type === 'radio') {
+                    if (input.checked) {
+                        answers[questionId] = input.value;
+                    }
+                } else if (input.type === 'textarea' || input.tagName === 'TEXTAREA') {
+                    if (input.value.trim()) {
+                        answers[questionId] = input.value.trim();
+                    }
+                }
+            });
+            
+            document.getElementById('answersInput').value = JSON.stringify(answers);
+            this.submit();
+        });
+        
+        // Timer countdown
+        const durationMinutes = parseInt('[[${test.durationMinutes}]]');
+        if (durationMinutes && !isNaN(durationMinutes)) {
+            let timeLeft = durationMinutes * 60; // Convert to seconds
+            
+            const timerElement = document.getElementById('timer');
+            
+            const countdown = setInterval(function() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerElement.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                
+                // Change color when time is running out
+                if (timeLeft <= 300) { // 5 minutes
+                    timerElement.style.color = '#f44336';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    alert('Hết giờ! Bài làm sẽ được tự động nộp.');
+                    document.getElementById('testForm').submit();
+                }
+                
+                timeLeft--;
+            }, 1000);
+        }
+        
+        // Highlight selected option
+        document.querySelectorAll('.option-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    
+                    // Remove selected class from siblings
+                    const siblings = this.parentElement.querySelectorAll('.option-item');
+                    siblings.forEach(sib => sib.classList.remove('selected'));
+                    
+                    // Add selected class to this item
+                    this.classList.add('selected');
+                }
+            });
+        });
+        
+        // Warn before leaving page
+        window.addEventListener('beforeunload', function(e) {
+            e.preventDefault();
+            e.returnValue = '';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Cài đặt - Smart Classroom Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Người dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/profile" class="nav-item active">Cài đặt</a>
+            </nav>
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Cài đặt tài khoản</div>
+            </header>
+            <div class="content">
+                <div style="max-width: 600px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title mb-lg">Thông tin cá nhân</h3>
+                            <form th:action="@{/admin/profile}" method="post" th:object="${user}">
+                                <div class="form-group">
+                                    <label class="form-label">Họ và tên</label>
+                                    <input type="text" th:field="*{fullName}" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" th:field="*{email}" class="form-input" disabled>
+                                    <small class="text-secondary text-sm">Email không thể thay đổi</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input type="text" th:field="*{phone}" class="form-input">
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="margin-top: 24px;">
+                                    Lưu thay đổi
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

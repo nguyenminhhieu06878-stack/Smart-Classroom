@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${classroom.name} + ' - Smart Classroom'"></title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item active">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <div class="user-info">
+                    <span>Giáo viên</span>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 12px;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <div class="header-title" th:text="${classroom.name}"></div>
+                    <div style="color: var(--text-secondary); font-size: 14px; margin-top: 4px;">
+                        <span th:text="${classroom.subject}"></span> - Lớp <span th:text="${classroom.grade}"></span>
+                    </div>
+                </div>
+                <a th:href="@{/teacher/classrooms/{id}/edit(id=${classroom.id})}" class="btn">Chỉnh sửa</a>
+            </header>
+
+            <div class="content">
+                <!-- Classroom Info Card -->
+                <div class="card" style="max-width: 600px; margin-bottom: 24px;">
+                    <div class="card-header">
+                        <div class="card-title">Thông tin phòng học</div>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">
+                                    Mã phòng (chia sẻ với học sinh)
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <code style="font-size: 20px; font-weight: 600; padding: 8px 16px; background: var(--bg-secondary); border-radius: 6px;" 
+                                          th:text="${classroom.roomId}"></code>
+                                    <button onclick="copyRoomId()" class="btn btn-sm">Sao chép</button>
+                                </div>
+                            </div>
+
+                            <div th:if="${classroom.description}">
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">
+                                    Mô tả
+                                </div>
+                                <div th:text="${classroom.description}"></div>
+                            </div>
+
+                            <div>
+                                <div style="color: var(--text-secondary); font-size: 13px; margin-bottom: 4px;">
+                                    Số lượng học sinh
+                                </div>
+                                <div>
+                                    <span th:text="${memberCount}"></span>
+                                    <span th:if="${maxStudents != null}">
+                                        / <span th:text="${maxStudents}"></span>
+                                    </span>
+                                    <span th:if="${!canAddMore}" style="color: var(--error); margin-left: 8px;">
+                                        (Đã đầy)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students List -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Danh sách học sinh</div>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${members.isEmpty()}" class="empty-state">
+                            <p>Chưa có học sinh nào tham gia</p>
+                            <p style="color: var(--text-secondary); font-size: 14px;">
+                                Chia sẻ mã phòng <code th:text="${classroom.roomId}"></code> để học sinh tham gia
+                            </p>
+                        </div>
+
+                        <div th:if="${!members.isEmpty()}" class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Họ tên</th>
+                                        <th>Email</th>
+                                        <th>Ngày tham gia</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="member : ${members}">
+                                        <td th:text="${member.student.fullName}"></td>
+                                        <td th:text="${member.student.email}"></td>
+                                        <td th:text="${#temporals.format(member.joinedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                        <td>
+                                            <form th:action="@{/teacher/classrooms/{classroomId}/students/{studentId}/remove(classroomId=${classroom.id},studentId=${member.student.id})}" 
+                                                  method="post"
+                                                  onsubmit="return confirm('Bạn có chắc muốn xóa học sinh này khỏi lớp?');">
+                                                <button type="submit" class="btn btn-sm btn-ghost" style="color: var(--error);">
+                                                    Xóa
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function copyRoomId() {
+            const roomId = document.querySelector('code').textContent;
+            navigator.clipboard.writeText(roomId).then(() => {
+                alert('Đã sao chép mã phòng: ' + roomId);
+            });
+        }
+    </script>
+</body>
+</html>

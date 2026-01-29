@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bảng điều khiển - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item active">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <div class="user-info">
+                    <span th:text="${teacher.fullName}"></span>
+                </div>
+                <form th:action="@{/logout}" method="post" style="margin-top: 12px;">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Bảng điều khiển</div>
+            </header>
+
+            <div class="content">
+                <!-- Warnings -->
+                <div th:if="${warningMessage}" style="margin-bottom: 24px; padding: 16px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; color: #856404;">
+                    <strong>⚠️ Cảnh báo:</strong> <span th:text="${warningMessage}"></span>
+                    <a href="/teacher/subscription" style="margin-left: 12px; color: #856404; text-decoration: underline;">Gia hạn ngay</a>
+                </div>
+                
+                <div th:if="${aiLessonWarning}" style="margin-bottom: 24px; padding: 16px; background: #e3f2fd; border: 1px solid #2196F3; border-radius: 8px; color: #0d47a1;">
+                    <strong>ℹ️ Thông báo:</strong> <span th:text="${aiLessonWarning}"></span>
+                </div>
+                
+                <div th:if="${testWarning}" style="margin-bottom: 24px; padding: 16px; background: #e3f2fd; border: 1px solid #2196F3; border-radius: 8px; color: #0d47a1;">
+                    <strong>ℹ️ Thông báo:</strong> <span th:text="${testWarning}"></span>
+                </div>
+                
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Phòng học</div>
+                        <div class="stat-value" th:text="${classroomCount}">0</div>
+                        <a href="/teacher/classrooms" class="btn btn-sm" style="margin-top: 12px;">Xem tất cả</a>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Học sinh</div>
+                        <div class="stat-value" th:text="${studentCount}">0</div>
+                        <a href="/teacher/classrooms" class="btn btn-sm" style="margin-top: 12px;">Xem tất cả</a>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Ngân hàng câu hỏi</div>
+                        <div class="stat-value" th:text="${questionCount}">0</div>
+                        <a href="/teacher/questions" class="btn btn-sm" style="margin-top: 12px;">Xem tất cả</a>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Bài giảng</div>
+                        <div class="stat-value" th:text="${lessonCount}">0</div>
+                        <a href="/teacher/lessons" class="btn btn-sm" style="margin-top: 12px;">Xem tất cả</a>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Đề thi</div>
+                        <div class="stat-value" th:text="${testCount}">0</div>
+                        <a href="/teacher/tests" class="btn btn-sm" style="margin-top: 12px;">Xem tất cả</a>
+                    </div>
+                </div>
+
+                <!-- AI Features -->
+                <div class="card" style="max-width: 600px;">
+                    <div class="card-header">
+                        <div class="card-title">Công cụ AI</div>
+                    </div>
+                    <div class="card-body">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <a href="/teacher/questions/ai-generate" class="btn">
+                                Tạo câu hỏi với AI
+                            </a>
+                            <a href="/teacher/lessons/ai-generate" class="btn">
+                                Soạn bài giảng với AI
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

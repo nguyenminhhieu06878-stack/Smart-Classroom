@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Học sinh - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item active">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Học sinh của tôi</div>
+            </header>
+
+            <div class="content">
+                <!-- Room ID Card -->
+                <div class="card mb-lg">
+                    <div class="card-body">
+                        <h3 class="card-title mb-sm">Mã lớp học của bạn</h3>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="font-size: 32px; font-weight: 600; letter-spacing: 4px; font-family: monospace; background: #f0f0f0; padding: 12px 24px; border-radius: 8px;">
+                                <span th:text="${teacher.roomId}">TC001</span>
+                            </div>
+                            <div class="text-sm text-secondary">
+                                Chia sẻ mã này với học sinh để họ tham gia lớp của bạn
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="card mb-lg">
+                    <div class="card-body">
+                        <div class="text-sm text-secondary mb-sm">Tổng số học sinh</div>
+                        <div style="font-size: 36px; font-weight: 600;" th:text="${studentCount}">0</div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${#lists.isEmpty(members)}" class="empty-state">
+                    <div class="empty-state-title">Chưa có học sinh nào</div>
+                    <p>Chia sẻ mã lớp học <strong th:text="${teacher.roomId}"></strong> với học sinh để họ tham gia</p>
+                </div>
+
+                <!-- Students Table -->
+                <div th:if="${!#lists.isEmpty(members)}" class="card">
+                    <div class="card-body">
+                        <h3 class="card-title mb-md">Danh sách học sinh</h3>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Họ và tên</th>
+                                        <th>Email</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Ngày tham gia</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="member : ${members}">
+                                        <td th:text="${member.student.fullName}"></td>
+                                        <td th:text="${member.student.email}"></td>
+                                        <td th:text="${member.student.phone ?: '-'}"></td>
+                                        <td class="text-sm" th:text="${#temporals.format(member.joinedAt, 'dd/MM/yyyy')}"></td>
+                                        <td>
+                                            <form th:action="@{/teacher/students/{id}/remove(id=${member.student.id})}" 
+                                                  method="post" style="display: inline;">
+                                                <button type="submit" class="btn btn-sm" 
+                                                        onclick="return confirm('Bạn có chắc muốn xóa học sinh này khỏi lớp?')">
+                                                    Xóa
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
