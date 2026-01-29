@@ -89,34 +89,22 @@
                 
                 <form th:action="@{/login}" method="post" id="loginForm">
                     <div class="form-group">
-                        <label class="form-label">Đăng nhập với vai trò</label>
-                        <select name="loginRole" id="loginRole" class="form-input" required>
-                            <option value="">Chọn vai trò...</option>
-                            <option value="ADMIN">Admin</option>
-                            <option value="TEACHER">Giáo viên</option>
-                            <option value="STUDENT">Học sinh</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
                         <label class="form-label">Địa chỉ email</label>
-                        <input type="email" name="username" class="form-input" required>
+                        <input type="email" name="username" class="form-input" required placeholder="example@smartclass.vn">
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Mật khẩu</label>
-                        <input type="password" name="password" class="form-input" required>
+                        <input type="password" name="password" class="form-input" required placeholder="••••••••">
                     </div>
                     
-                    <!-- Classroom Code (only for students) -->
-                    <div id="classroomCodeField" class="classroom-code-field">
-                        <div class="form-group">
-                            <label class="form-label">Mã phòng học (tùy chọn)</label>
-                            <input type="text" name="classroomCode" class="form-input" placeholder="Ví dụ: TC001">
-                            <small style="color: var(--color-text-secondary); font-size: 12px;">
-                                Nhập mã phòng học để tự động tham gia lớp
-                            </small>
-                        </div>
+                    <!-- Classroom Code (optional for students) -->
+                    <div id="classroomCodeField" class="form-group">
+                        <label class="form-label">Mã phòng học (nếu có)</label>
+                        <input type="text" name="classroomCode" class="form-input" placeholder="Ví dụ: TC001">
+                        <small style="color: var(--color-text-secondary); font-size: 12px;">
+                            Nhập mã để tham gia lớp học ngay sau khi đăng nhập (chỉ dành cho học sinh).
+                        </small>
                     </div>
                     
                     <button type="submit" class="btn btn-primary btn-login">Đăng nhập</button>
@@ -135,19 +123,5 @@
             </div>
         </div>
     </div>
-    
-    <script>
-        // Show/hide classroom code field based on role selection
-        const roleSelect = document.getElementById('loginRole');
-        const classroomCodeField = document.getElementById('classroomCodeField');
-        
-        roleSelect.addEventListener('change', function() {
-            if (this.value === 'STUDENT') {
-                classroomCodeField.classList.add('show');
-            } else {
-                classroomCodeField.classList.remove('show');
-            }
-        });
-    </script>
 </body>
 </html>

@@ -2,7 +2,6 @@ package com.smartclass.controller;
 
 import com.smartclass.model.*;
 import com.smartclass.service.AdminService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,10 +13,13 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
 public class AdminController {
 
     private final AdminService adminService;
+
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
 
     // ========== DASHBOARD ==========
 
@@ -96,7 +98,8 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/reset-password")
-    public String resetPassword(@PathVariable Long id, @RequestParam String newPassword, RedirectAttributes redirectAttributes) {
+    public String resetPassword(@PathVariable Long id, @RequestParam String newPassword,
+            RedirectAttributes redirectAttributes) {
         try {
             User user = adminService.getUserById(id);
             adminService.resetUserPassword(id, newPassword);
@@ -209,9 +212,9 @@ public class AdminController {
 
     @GetMapping("/questions")
     public String questions(Model model,
-                           @RequestParam(required = false) String subject,
-                           @RequestParam(required = false) String grade,
-                           @RequestParam(required = false) String keyword) {
+            @RequestParam(required = false) String subject,
+            @RequestParam(required = false) String grade,
+            @RequestParam(required = false) String keyword) {
         List<Question> questions = adminService.getAllQuestions(subject, grade, keyword);
         model.addAttribute("questions", questions);
         model.addAttribute("subject", subject);
@@ -242,8 +245,8 @@ public class AdminController {
 
     @GetMapping("/lessons")
     public String lessons(Model model,
-                         @RequestParam(required = false) String subject,
-                         @RequestParam(required = false) String grade) {
+            @RequestParam(required = false) String subject,
+            @RequestParam(required = false) String grade) {
         List<Lesson> lessons = adminService.getAllLessons(subject, grade);
         model.addAttribute("lessons", lessons);
         model.addAttribute("subject", subject);
@@ -273,8 +276,8 @@ public class AdminController {
 
     @GetMapping("/tests")
     public String tests(Model model,
-                       @RequestParam(required = false) String subject,
-                       @RequestParam(required = false) String grade) {
+            @RequestParam(required = false) String subject,
+            @RequestParam(required = false) String grade) {
         List<Test> tests = adminService.getAllTests(subject, grade);
         model.addAttribute("tests", tests);
         model.addAttribute("subject", subject);
@@ -336,8 +339,8 @@ public class AdminController {
 
     @GetMapping("/ai-history")
     public String aiHistory(Model model,
-                           @RequestParam(required = false) String type,
-                           @RequestParam(required = false) String keyword) {
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String keyword) {
         List<AIHistory> histories = adminService.getAllAIHistory(type, keyword);
         model.addAttribute("histories", histories);
         model.addAttribute("type", type);
@@ -366,7 +369,8 @@ public class AdminController {
     }
 
     @PostMapping("/profile")
-    public String updateProfile(@ModelAttribute User userUpdate, Authentication auth, RedirectAttributes redirectAttributes) {
+    public String updateProfile(@ModelAttribute User userUpdate, Authentication auth,
+            RedirectAttributes redirectAttributes) {
         try {
             adminService.updateProfile(auth.getName(), userUpdate);
             redirectAttributes.addFlashAttribute("successMessage", "Cập nhật thông tin thành công!");
