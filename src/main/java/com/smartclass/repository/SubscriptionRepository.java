@@ -1,5 +1,6 @@
 package com.smartclass.repository;
 
+import com.smartclass.model.Plan;
 import com.smartclass.model.Subscription;
 import com.smartclass.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,4 +36,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     
     @Query("SELECT SUM(s.amount) FROM Subscription s WHERE s.createdAt >= :startDate")
     Double getTotalRevenue(LocalDateTime startDate);
+    
+    List<Subscription> findByPlan(Plan plan);
 }

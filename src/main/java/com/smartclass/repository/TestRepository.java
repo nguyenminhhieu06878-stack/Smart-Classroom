@@ -19,4 +19,11 @@ public interface TestRepository extends JpaRepository<Test, Long> {
     
     @Query("SELECT t FROM Test t WHERE t.classroom IN :classrooms OR t.classroom IS NULL")
     List<Test> findByClassroomsOrNoClassroom(@Param("classrooms") List<Classroom> classrooms);
+    
+    // Admin search methods
+    @Query("SELECT t FROM Test t WHERE " +
+           "(:subject IS NULL OR t.subject = :subject) " +
+           "AND (:grade IS NULL OR t.grade = :grade)")
+    List<Test> searchTestsAdmin(@Param("subject") String subject,
+                                @Param("grade") String grade);
 }

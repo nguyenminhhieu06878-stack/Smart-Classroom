@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết bài giảng - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Ngườii dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item active">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Chi tiết bài giảng</div>
+                <div class="header-actions">
+                    <a href="/admin/lessons" class="btn">Quay lại</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-body">
+                        <div style="display: grid; gap: 24px;">
+                            <!-- Header Info -->
+                            <div>
+                                <h2 class="card-title mb-sm" th:text="${lesson.title}"></h2>
+                                <div class="text-secondary" th:text="${lesson.subject} + ' - ' + ${lesson.grade}"></div>
+                            </div>
+
+                            <!-- Metadata -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; 
+                                        background: #f8f9fa; padding: 16px; border-radius: 8px;">
+                                <div>
+                                    <div class="text-sm text-secondary">Chủ đề</div>
+                                    <div th:text="${lesson.topic}"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Lớp học</div>
+                                    <div th:if="${lesson.classroom != null}" th:text="${lesson.classroom.name}"></div>
+                                    <div th:if="${lesson.classroom == null}" class="text-secondary">Chưa gán lớp</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Giáo viên</div>
+                                    <div th:text="${lesson.teacher != null} ? ${lesson.teacher.fullName} : 'N/A'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Ngày tạo</div>
+                                    <div th:text="${#temporals.format(lesson.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Learning Objectives -->
+                            <div th:if="${lesson.learningObjectives != null && !lesson.learningObjectives.isEmpty()}">
+                                <h4 class="mb-sm">Mục tiêu bài học</h4>
+                                <div style="background: #e7f3ff; padding: 16px; border-radius: 8px;" 
+                                     th:text="${lesson.learningObjectives}"></div>
+                            </div>
+
+                            <!-- Content -->
+                            <div>
+                                <h4 class="mb-sm">Nội dung bài giảng</h4>
+                                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; line-height: 1.8; white-space: pre-wrap;" 
+                                     th:text="${lesson.content}"></div>
+                            </div>
+
+                            <!-- Video URL -->
+                            <div th:if="${lesson.videoUrl != null && !lesson.videoUrl.isEmpty()}">
+                                <h4 class="mb-sm">Video</h4>
+                                <a th:href="${lesson.videoUrl}" target="_blank" th:text="${lesson.videoUrl}"></a>
+                            </div>
+
+                            <!-- Actions -->
+                            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                <form th:action="@{/admin/lessons/{id}/delete(id=${lesson.id})}" method="post">
+                                    <button type="submit" class="btn btn-danger" 
+                                            onclick="return confirm('Xóa bài giảng này?')">Xóa bài giảng</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -25,7 +25,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**", "/error").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/admin/**").hasAuthority("ADMIN")
                 .requestMatchers("/teacher/**").hasAuthority("TEACHER")
@@ -46,6 +46,9 @@ public class SecurityConfig {
             )
             .headers(headers -> headers
                 .frameOptions(frame -> frame.sameOrigin())
+            )
+            .exceptionHandling(exception -> exception
+                .accessDeniedPage("/error")
             );
         
         return http.build();

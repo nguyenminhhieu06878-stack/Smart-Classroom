@@ -13,8 +13,15 @@
             
             <nav class="sidebar-nav">
                 <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
-                <a href="/admin/users" class="nav-item active">Người dùng</a>
+                <a href="/admin/users" class="nav-item active">Ngườii dùng</a>
                 <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
             </nav>
             
             <div>
@@ -28,8 +35,8 @@
         <main class="main-content">
             <header class="header">
                 <div class="header-title">
-                    <span th:if="${user.id == null}">Người dùng mới</span>
-                    <span th:if="${user.id != null}">Sửa người dùng</span>
+                    <span th:if="${user.id == null}">Ngườii dùng mới</span>
+                    <span th:if="${user.id != null}">Sửa ngườii dùng</span>
                 </div>
             </header>
 
@@ -41,12 +48,12 @@
                                   method="post" th:object="${user}">
                                 
                                 <div class="form-group">
-                                    <label class="form-label">Email</label>
+                                    <label class="form-label">Email *</label>
                                     <input type="email" th:field="*{email}" class="form-input" required>
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Họ và tên</label>
+                                    <label class="form-label">Họ và tên *</label>
                                     <input type="text" th:field="*{fullName}" class="form-input" required>
                                 </div>
 
@@ -56,16 +63,13 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Mật khẩu</label>
+                                    <label class="form-label">Mật khẩu <span th:if="${user.id != null}" class="text-secondary">(để trống để giữ nguyên)</span></label>
                                     <input type="password" th:field="*{password}" class="form-input" 
                                            th:required="${user.id == null}">
-                                    <small class="text-secondary text-sm" th:if="${user.id != null}">
-                                        Để trống để giữ mật khẩu hiện tại
-                                    </small>
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Vai trò</label>
+                                    <label class="form-label">Vai trò *</label>
                                     <select th:field="*{role}" class="form-select" required>
                                         <option value="ADMIN">Quản trị viên</option>
                                         <option value="TEACHER">Giáo viên</option>
@@ -83,8 +87,8 @@
                                 <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px;">
                                     <a href="/admin/users" class="btn">Hủy</a>
                                     <button type="submit" class="btn btn-primary">
-                                        <span th:if="${user.id == null}">Tạo người dùng</span>
-                                        <span th:if="${user.id != null}">Cập nhật người dùng</span>
+                                        <span th:if="${user.id == null}">Tạo ngườii dùng</span>
+                                        <span th:if="${user.id != null}">Cập nhật ngườii dùng</span>
                                     </button>
                                 </div>
                             </form>

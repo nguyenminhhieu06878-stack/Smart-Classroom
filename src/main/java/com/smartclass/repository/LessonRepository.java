@@ -19,4 +19,11 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     
     @Query("SELECT l FROM Lesson l WHERE l.classroom IN :classrooms OR l.classroom IS NULL")
     List<Lesson> findByClassroomsOrNoClassroom(@Param("classrooms") List<Classroom> classrooms);
+    
+    // Admin search methods
+    @Query("SELECT l FROM Lesson l WHERE " +
+           "(:subject IS NULL OR l.subject = :subject) " +
+           "AND (:grade IS NULL OR l.grade = :grade)")
+    List<Lesson> searchLessonsAdmin(@Param("subject") String subject,
+                                    @Param("grade") String grade);
 }

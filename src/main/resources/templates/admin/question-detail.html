@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết câu hỏi - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Ngườii dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item active">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Chi tiết câu hỏi #<span th:text="${question.id}"></span></div>
+                <div class="header-actions">
+                    <a href="/admin/questions" class="btn">Quay lại</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-body">
+                        <div style="display: grid; gap: 20px;">
+                            <!-- Question Info -->
+                            <div>
+                                <h3 class="card-title mb-md">Nội dung câu hỏi</h3>
+                                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                                    <p th:text="${question.content}" style="font-size: 16px; line-height: 1.6;"></p>
+                                </div>
+                            </div>
+
+                            <!-- Options (for multiple choice) -->
+                            <div th:if="${question.questionType.name() == 'MULTIPLE_CHOICE'}">
+                                <h4 class="mb-sm">Các đáp án:</h4>
+                                <div style="display: grid; gap: 8px;">
+                                    <div style="padding: 12px; border: 1px solid #e5e7eb; border-radius: 6px;" 
+                                         th:classappend="${question.correctAnswer == 'A'} ? 'border-success bg-success-light' : ''">
+                                        <strong>A.</strong> <span th:text="${question.optionA}"></span>
+                                        <span th:if="${question.correctAnswer == 'A'}" class="badge badge-success" style="margin-left: 8px;">Đáp án đúng</span>
+                                    </div>
+                                    <div style="padding: 12px; border: 1px solid #e5e7eb; border-radius: 6px;"
+                                         th:classappend="${question.correctAnswer == 'B'} ? 'border-success bg-success-light' : ''">
+                                        <strong>B.</strong> <span th:text="${question.optionB}"></span>
+                                        <span th:if="${question.correctAnswer == 'B'}" class="badge badge-success" style="margin-left: 8px;">Đáp án đúng</span>
+                                    </div>
+                                    <div style="padding: 12px; border: 1px solid #e5e7eb; border-radius: 6px;"
+                                         th:classappend="${question.correctAnswer == 'C'} ? 'border-success bg-success-light' : ''">
+                                        <strong>C.</strong> <span th:text="${question.optionC}"></span>
+                                        <span th:if="${question.correctAnswer == 'C'}" class="badge badge-success" style="margin-left: 8px;">Đáp án đúng</span>
+                                    </div>
+                                    <div style="padding: 12px; border: 1px solid #e5e7eb; border-radius: 6px;"
+                                         th:classappend="${question.correctAnswer == 'D'} ? 'border-success bg-success-light' : ''">
+                                        <strong>D.</strong> <span th:text="${question.optionD}"></span>
+                                        <span th:if="${question.correctAnswer == 'D'}" class="badge badge-success" style="margin-left: 8px;">Đáp án đúng</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Correct Answer (for non-multiple choice) -->
+                            <div th:if="${question.questionType.name() != 'MULTIPLE_CHOICE'}">
+                                <h4 class="mb-sm">Đáp án đúng:</h4>
+                                <div style="background: #d4edda; padding: 12px; border-radius: 6px; color: #155724;" 
+                                     th:text="${question.correctAnswer}"></div>
+                            </div>
+
+                            <!-- Explanation -->
+                            <div th:if="${question.explanation != null && !question.explanation.isEmpty()}">
+                                <h4 class="mb-sm">Giải thích:</h4>
+                                <div style="background: #e7f3ff; padding: 12px; border-radius: 6px;" 
+                                     th:text="${question.explanation}"></div>
+                            </div>
+
+                            <!-- Metadata -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; 
+                                        background: #f8f9fa; padding: 16px; border-radius: 8px;">
+                                <div>
+                                    <div class="text-sm text-secondary">Môn học</div>
+                                    <div th:text="${question.subject}"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Lớp</div>
+                                    <div th:text="${question.grade}"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Chủ đề</div>
+                                    <div th:text="${question.topic}"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Độ khó</div>
+                                    <span class="badge" 
+                                          th:classappend="${question.difficulty.name() == 'EASY'} ? 'badge-success' : (${question.difficulty.name() == 'MEDIUM'} ? 'badge-warning' : 'badge-danger')"
+                                          th:text="${question.difficulty.name() == 'EASY'} ? 'Dễ' : (${question.difficulty.name() == 'MEDIUM'} ? 'Trung bình' : 'Khó')">
+                                    </span>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Loại câu hỏi</div>
+                                    <div th:switch="${question.questionType.name()}">
+                                        <span th:case="'MULTIPLE_CHOICE'">Trắc nghiệm</span>
+                                        <span th:case="'ESSAY'">Tự luận</span>
+                                        <span th:case="'TRUE_FALSE'">Đúng/Sai</span>
+                                        <span th:case="'FILL_BLANK'">Điền chỗ trống</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Điểm</div>
+                                    <div th:text="${question.points}"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Nguồn</div>
+                                    <span class="badge" 
+                                          th:classappend="${question.createdBy.name() == 'AI'} ? 'badge-info' : (${question.createdBy.name() == 'IMPORT'} ? 'badge-warning' : '')"
+                                          th:text="${question.createdBy.name() == 'AI'} ? 'AI' : (${question.createdBy.name() == 'IMPORT'} ? 'Import' : 'Thủ công')">
+                                    </span>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Giáo viên</div>
+                                    <div th:text="${question.teacher != null} ? ${question.teacher.fullName} : 'N/A'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Ngày tạo</div>
+                                    <div th:text="${#temporals.format(question.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                <form th:action="@{/admin/questions/{id}/delete(id=${question.id})}" method="post">
+                                    <button type="submit" class="btn btn-danger" 
+                                            onclick="return confirm('Xóa câu hỏi này?')">Xóa câu hỏi</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

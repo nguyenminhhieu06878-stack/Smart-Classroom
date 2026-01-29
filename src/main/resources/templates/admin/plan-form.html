@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gói dịch vụ - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Ngườii dùng</a>
+                <a href="/admin/plans" class="nav-item active">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">
+                    <span th:if="${plan.id == null}">Tạo gói dịch vụ mới</span>
+                    <span th:if="${plan.id != null}">Sửa gói dịch vụ</span>
+                </div>
+            </header>
+
+            <div class="content">
+                <div style="max-width: 700px;">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="${plan.id == null} ? @{/admin/plans} : @{/admin/plans/{id}(id=${plan.id})}" 
+                                  method="post" th:object="${plan}">
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Tên gói *</label>
+                                        <input type="text" th:field="*{name}" class="form-input" required placeholder="Ví dụ: Cơ bản">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Giá (VNĐ/tháng) *</label>
+                                        <input type="number" th:field="*{price}" class="form-input" required min="0" placeholder="79000">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Mô tả</label>
+                                    <textarea th:field="*{description}" class="form-input" rows="2" placeholder="Mô tả ngắn về gói dịch vụ"></textarea>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Số lớp tối đa</label>
+                                        <input type="number" th:field="*{maxClasses}" class="form-input" min="1" placeholder="5">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Số học sinh tối đa/lớp</label>
+                                        <input type="number" th:field="*{maxStudents}" class="form-input" min="1" placeholder="40">
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div class="form-group">
+                                        <label class="form-label">Bài giảng AI/tháng</label>
+                                        <input type="number" th:field="*{aiLessonsPerMonth}" class="form-input" min="0" placeholder="20">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Đề thi/tháng</label>
+                                        <input type="number" th:field="*{testsPerMonth}" class="form-input" min="0" placeholder="10">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Ngân hàng câu hỏi tối đa</label>
+                                    <input type="number" th:field="*{maxQuestionsBank}" class="form-input" min="0" placeholder="200">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <input type="checkbox" th:field="*{autoGrading}" style="margin-right: 8px;">
+                                            Chấm bài tự động
+                                        </label>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            <input type="checkbox" th:field="*{advancedReports}" style="margin-right: 8px;">
+                                            Báo cáo nâng cao
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" th:if="${plan.id != null}">
+                                    <label class="form-label">
+                                        <input type="checkbox" th:field="*{active}" style="margin-right: 8px;">
+                                        Hoạt động
+                                    </label>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 24px;">
+                                    <a href="/admin/plans" class="btn">Hủy</a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span th:if="${plan.id == null}">Tạo gói dịch vụ</span>
+                                        <span th:if="${plan.id != null}">Cập nhật gói dịch vụ</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

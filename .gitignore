@@ -41,3 +41,10 @@ build/
 ### Database ###
 *.db
 *.sqlite
+
+### Docker ###
+.env
+data/
+
+### Application ###
+application-local.properties

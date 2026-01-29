@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử AI - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Ngườii dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item active">Lịch sử AI</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Lịch sử sử dụng AI</div>
+            </header>
+
+            <div class="content">
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success mb-lg" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger mb-lg" th:text="${errorMessage}"></div>
+
+                <!-- Filter -->
+                <div class="card mb-lg">
+                    <div class="card-body">
+                        <form th:action="@{/admin/ai-history}" method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Loại</label>
+                                <select name="type" class="form-select" style="width: 150px;">
+                                    <option value="">Tất cả</option>
+                                    <option value="QUESTIONS" th:selected="${type == 'QUESTIONS'}">Tạo câu hỏi</option>
+                                    <option value="LESSON" th:selected="${type == 'LESSON'}">Tạo bài giảng</option>
+                                    <option value="TEST" th:selected="${type == 'TEST'}">Tạo đề thi</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Từ khóa</label>
+                                <input type="text" name="keyword" th:value="${keyword}" class="form-input" placeholder="Tìm kiếm..." style="width: 200px;">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Lọc</button>
+                            <a href="/admin/ai-history" class="btn">Xóa lọc</a>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- AI History Table -->
+                <div class="card">
+                    <div class="card-body" style="padding: 0;">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Loại</th>
+                                    <th>Giáo viên</th>
+                                    <th>Môn</th>
+                                    <th>Lớp</th>
+                                    <th>Chủ đề</th>
+                                    <th>Số lượng</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="h : ${histories}">
+                                    <td th:text="${h.id}"></td>
+                                    <td>
+                                        <span class="badge" 
+                                              th:classappend="${h.aiType.name() == 'QUESTIONS'} ? 'badge-info' : (${h.aiType.name() == 'LESSON'} ? 'badge-success' : 'badge-warning')"
+                                              th:text="${h.aiType.name() == 'QUESTIONS'} ? 'Câu hỏi' : (${h.aiType.name() == 'LESSON'} ? 'Bài giảng' : 'Đề thi')">
+                                        </span>
+                                    </td>
+                                    <td th:text="${h.teacher != null} ? ${h.teacher.fullName} : 'N/A'"></td>
+                                    <td th:text="${h.subject}"></td>
+                                    <td th:text="${h.grade}"></td>
+                                    <td th:text="${h.topic}"></td>
+                                    <td th:text="${h.itemsCount != null} ? ${h.itemsCount} : '-'"></td>
+                                    <td th:text="${#temporals.format(h.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <form th:action="@{/admin/ai-history/{id}/delete(id=${h.id})}" method="post" class="inline-form">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                <button type="submit" class="btn btn-sm btn-action btn-danger" 
+                                                        onclick="return confirm('Xóa lịch sử này?')">Xóa</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(histories)}">
+                                    <td colspan="9" style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                                        Không có lịch sử nào
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

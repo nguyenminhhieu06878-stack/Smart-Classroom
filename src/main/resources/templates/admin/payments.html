@@ -13,9 +13,14 @@
             
             <nav class="sidebar-nav">
                 <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
-                <a href="/admin/users" class="nav-item">Người dùng</a>
+                <a href="/admin/users" class="nav-item">Ngườii dùng</a>
                 <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
                 <a href="/admin/payments" class="nav-item active">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
                 <a href="/admin/profile" class="nav-item">Cài đặt</a>
             </nav>
             
@@ -33,6 +38,10 @@
             </header>
 
             <div class="content">
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success mb-lg" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger mb-lg" th:text="${errorMessage}"></div>
+
                 <!-- Stats Cards -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 32px;">
                     <div class="card">
@@ -83,7 +92,8 @@
                                     <th>Phương thức</th>
                                     <th>Mã GD</th>
                                     <th>Ngày tạo</th>
-                                    <th>Thời hạn</th>
+                                    <th>Thờii hạn</th>
+                                    <th>Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -122,9 +132,21 @@
                                             đến <span th:text="${#temporals.format(sub.endDate, 'dd/MM/yyyy')}"></span>
                                         </div>
                                     </td>
+                                    <td>
+                                        <div class="action-buttons" th:if="${sub.paymentStatus.name() == 'PENDING'}">
+                                            <form th:action="@{/admin/payments/{id}/confirm(id=${sub.id})}" method="post" class="inline-form">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                <button type="submit" class="btn btn-sm btn-action btn-success">Xác nhận</button>
+                                            </form>
+                                            <form th:action="@{/admin/payments/{id}/cancel(id=${sub.id})}" method="post" class="inline-form">
+                                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                <button type="submit" class="btn btn-sm btn-action btn-warning">Hủy</button>
+                                            </form>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(subscriptions)}">
-                                    <td colspan="9" style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                                    <td colspan="10" style="text-align: center; padding: 32px; color: var(--text-secondary);">
                                         Chưa có giao dịch nào
                                     </td>
                                 </tr>

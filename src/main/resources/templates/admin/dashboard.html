@@ -14,9 +14,14 @@
             
             <nav class="sidebar-nav">
                 <a href="/admin/dashboard" class="nav-item active">Bảng điều khiển</a>
-                <a href="/admin/users" class="nav-item">Người dùng</a>
+                <a href="/admin/users" class="nav-item">Ngườii dùng</a>
                 <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
                 <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
                 <a href="/admin/profile" class="nav-item">Cài đặt</a>
             </nav>
             
@@ -34,11 +39,15 @@
             </header>
 
             <div class="content">
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success mb-lg" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger mb-lg" th:text="${errorMessage}"></div>
+
                 <!-- Stats Grid -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px;">
                     <div class="card">
                         <div class="card-body">
-                            <div class="text-sm text-secondary mb-sm">Tổng người dùng</div>
+                            <div class="text-sm text-secondary mb-sm">Tổng ngườii dùng</div>
                             <div style="font-size: 32px; font-weight: 600;" th:text="${totalUsers}">0</div>
                         </div>
                     </div>
@@ -86,7 +95,7 @@
                 </div>
 
                 <!-- Content Stats -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 32px;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px;">
                     <div class="card">
                         <div class="card-body">
                             <div class="text-sm text-secondary mb-sm">Ngân hàng câu hỏi</div>
@@ -110,6 +119,22 @@
                             <div class="text-sm text-secondary">Tổng số đề thi</div>
                         </div>
                     </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Lớp học</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${totalClassrooms}">0</div>
+                            <div class="text-sm text-secondary">Tổng số lớp học</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="text-sm text-secondary mb-sm">Sử dụng AI</div>
+                            <div style="font-size: 32px; font-weight: 600;" th:text="${totalAIUsages}">0</div>
+                            <div class="text-sm text-secondary">Lượt gọi AI</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Recent Subscriptions -->
@@ -120,7 +145,7 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>Người dùng</th>
+                                        <th>Ngườii dùng</th>
                                         <th>Gói</th>
                                         <th>Số tiền</th>
                                         <th>Trạng thái</th>

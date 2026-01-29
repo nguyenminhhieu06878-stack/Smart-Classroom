@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết đề thi - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            
+            <nav class="sidebar-nav">
+                <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/admin/users" class="nav-item">Ngườii dùng</a>
+                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
+                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item active">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
+                <a href="/admin/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="header">
+                <div class="header-title">Chi tiết đề thi</div>
+                <div class="header-actions">
+                    <a href="/admin/tests" class="btn">Quay lại</a>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-body">
+                        <div style="display: grid; gap: 24px;">
+                            <!-- Header Info -->
+                            <div>
+                                <h2 class="card-title mb-sm" th:text="${test.title}"></h2>
+                                <div class="text-secondary" th:text="${test.subject} + ' - ' + ${test.grade}"></div>
+                            </div>
+
+                            <!-- Metadata -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; 
+                                        background: #f8f9fa; padding: 16px; border-radius: 8px;">
+                                <div>
+                                    <div class="text-sm text-secondary">Thờii gian</div>
+                                    <div th:text="${test.durationMinutes} + ' phút'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Tổng điểm</div>
+                                    <div th:text="${test.totalPoints}"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Số câu hỏi</div>
+                                    <div th:text="${test.testQuestions != null} ? ${test.testQuestions.size()} : 0"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Lớp học</div>
+                                    <div th:if="${test.classroom != null}" th:text="${test.classroom.name}"></div>
+                                    <div th:if="${test.classroom == null}" class="text-secondary">Chưa gán lớp</div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Giáo viên</div>
+                                    <div th:text="${test.teacher != null} ? ${test.teacher.fullName} : 'N/A'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-secondary">Ngày tạo</div>
+                                    <div th:text="${#temporals.format(test.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Test Matrix -->
+                            <div th:if="${test.testMatrix != null && !test.testMatrix.isEmpty()}">
+                                <h4 class="mb-sm">Ma trận đề thi</h4>
+                                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; font-family: monospace; font-size: 14px;" 
+                                     th:text="${test.testMatrix}"></div>
+                            </div>
+
+                            <!-- Questions -->
+                            <div th:if="${test.testQuestions != null && !test.testQuestions.isEmpty()}">
+                                <h4 class="mb-md">Danh sách câu hỏi</h4>
+                                <div style="display: flex; flex-direction: column; gap: 16px;">
+                                    <div th:each="tq, iter : ${test.testQuestions}" 
+                                         style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                            <div style="font-weight: 500;">
+                                                Câu <span th:text="${iter.count}"></span>: 
+                                                <span th:text="${tq.question.content}" style="font-weight: normal;"></span>
+                                            </div>
+                                            <span class="badge" th:text="${tq.customPoints != null} ? ${tq.customPoints + ' điểm'} : ${tq.question.points + ' điểm'}"></span>
+                                        </div>
+                                        <div class="text-sm text-secondary">
+                                            <span th:text="${tq.question.subject}"></span> - 
+                                            <span th:text="${tq.question.grade}"></span> - 
+                                            <span th:text="${tq.question.difficulty}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div style="display: flex; gap: 12px; margin-top: 16px;">
+                                <form th:action="@{/admin/tests/{id}/delete(id=${test.id})}" method="post">
+                                    <button type="submit" class="btn btn-danger" 
+                                            onclick="return confirm('Xóa đề thi này?')">Xóa đề thi</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

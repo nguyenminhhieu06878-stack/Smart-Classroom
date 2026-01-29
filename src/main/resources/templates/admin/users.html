@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Người dùng - Smart Classroom</title>
+    <title>Ngườii dùng - Smart Classroom</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
@@ -13,14 +13,20 @@
             
             <nav class="sidebar-nav">
                 <a href="/admin/dashboard" class="nav-item">Bảng điều khiển</a>
-                <a href="/admin/users" class="nav-item active">Người dùng</a>
+                <a href="/admin/users" class="nav-item active">Ngườii dùng</a>
                 <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
                 <a href="/admin/payments" class="nav-item">Thanh toán</a>
+                <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/admin/lessons" class="nav-item">Bài giảng</a>
+                <a href="/admin/tests" class="nav-item">Đề thi</a>
+                <a href="/admin/classrooms" class="nav-item">Lớp học</a>
+                <a href="/admin/ai-history" class="nav-item">Lịch sử AI</a>
                 <a href="/admin/profile" class="nav-item">Cài đặt</a>
             </nav>
             
             <div>
                 <form th:action="@{/logout}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
                 </form>
             </div>
@@ -29,13 +35,17 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="header">
-                <div class="header-title">Người dùng</div>
+                <div class="header-title">Ngườii dùng</div>
                 <div class="header-actions">
-                    <a href="/admin/users/new" class="btn btn-primary">Người dùng mới</a>
+                    <a href="/admin/users/new" class="btn btn-primary">Ngườii dùng mới</a>
                 </div>
             </header>
 
             <div class="content">
+                <!-- Success/Error Messages -->
+                <div th:if="${successMessage}" class="alert alert-success mb-lg" th:text="${successMessage}"></div>
+                <div th:if="${errorMessage}" class="alert alert-danger mb-lg" th:text="${errorMessage}"></div>
+
                 <div class="table-container">
                     <table class="table">
                         <thead>
@@ -55,20 +65,35 @@
                                 <td th:text="${user.fullName}"></td>
                                 <td>
                                     <span class="badge" 
+                                          th:if="${user.role != null}"
                                           th:classappend="${user.role.name() == 'ADMIN'} ? 'badge-danger' : (${user.role.name() == 'TEACHER'} ? 'badge-success' : 'badge-warning')"
-                                          th:text="${user.role}"></span>
+                                          th:text="${user.role.name() == 'ADMIN'} ? 'Admin' : (${user.role.name() == 'TEACHER'} ? 'Giáo viên' : 'Học sinh')">
+                                    </span>
+                                    <span class="badge badge-secondary" th:if="${user.role == null}">N/A</span>
                                 </td>
                                 <td>
                                     <span class="badge" 
-                                          th:classappend="${user.active} ? 'badge-success' : ''"
-                                          th:text="${user.active} ? 'Hoạt động' : 'Không hoạt động'"></span>
+                                          th:classappend="${user.active != null && user.active} ? 'badge-success' : 'badge-secondary'"
+                                          th:text="${user.active != null && user.active} ? 'Hoạt động' : 'Vô hiệu'">
+                                    </span>
                                 </td>
                                 <td>
-                                    <div style="display: flex; gap: 8px;">
-                                        <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-sm">Sửa</a>
-                                        <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post">
-                                            <button type="submit" class="btn btn-sm" 
-                                                    onclick="return confirm('Xóa người dùng này?')">Xóa</button>
+                                    <div class="action-buttons">
+                                        <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-sm btn-action btn-edit">Sửa</a>
+                                        <form th:action="@{/admin/users/{id}/toggle-status(id=${user.id})}" method="post" class="inline-form">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-sm btn-action" 
+                                                    th:classappend="${user.active != null && user.active} ? 'btn-warning' : 'btn-success'"
+                                                    th:text="${user.active != null && user.active} ? 'Khóa' : 'Mở khóa'">Toggle</button>
+                                        </form>
+                                        <button type="button" class="btn btn-sm btn-action btn-info" 
+                                                th:data-user-id="${user.id}" 
+                                                th:data-user-email="${user.email}"
+                                                onclick="showResetPasswordModal(this.getAttribute('data-user-id'), this.getAttribute('data-user-email'))">Reset MK</button>
+                                        <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post" class="inline-form">
+                                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                            <button type="submit" class="btn btn-sm btn-action btn-danger" 
+                                                    onclick="return confirm('Xóa ngườii dùng này?')">Xóa</button>
                                         </form>
                                     </div>
                                 </td>
@@ -79,5 +104,43 @@
             </div>
         </main>
     </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: white; padding: 24px; border-radius: 8px; width: 400px; max-width: 90%;">
+            <h3 class="mb-md">Reset mật khẩu</h3>
+            <p class="text-secondary mb-md">Reset mật khẩu cho: <strong id="resetUserEmail"></strong></p>
+            <form id="resetPasswordForm" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="form-group">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <input type="password" name="newPassword" class="form-input" required minlength="6">
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn" onclick="hideResetPasswordModal()">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Reset mật khẩu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showResetPasswordModal(userId, email) {
+            document.getElementById('resetUserEmail').textContent = email;
+            document.getElementById('resetPasswordForm').action = '/admin/users/' + userId + '/reset-password';
+            document.getElementById('resetPasswordModal').style.display = 'flex';
+        }
+
+        function hideResetPasswordModal() {
+            document.getElementById('resetPasswordModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('resetPasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideResetPasswordModal();
+            }
+        });
+    </script>
 </body>
 </html>

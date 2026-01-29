@@ -40,5 +40,14 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
                                    @Param("keyword") String keyword,
                                    Pageable pageable);
     
+    // Admin search methods
+    @Query("SELECT q FROM Question q WHERE " +
+           "(:subject IS NULL OR q.subject = :subject) " +
+           "AND (:grade IS NULL OR q.grade = :grade) " +
+           "AND (:keyword IS NULL OR q.topic LIKE %:keyword% OR q.content LIKE %:keyword%)")
+    List<Question> searchQuestionsAdmin(@Param("subject") String subject,
+                                        @Param("grade") String grade,
+                                        @Param("keyword") String keyword);
+    
     long countByTeacher(User teacher);
 }
