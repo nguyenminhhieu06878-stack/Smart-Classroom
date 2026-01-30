@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Smart Classroom</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .chat-main-container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+        .chat-sidebar {
+            width: 320px;
+            border-right: 1px solid var(--gray-200);
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+        .chat-sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-sidebar-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .new-chat-btn {
+            background: #262626;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .new-chat-btn:hover {
+            background: #404040;
+        }
+        .conversations-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .conversation-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--gray-200);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .conversation-item:hover, .conversation-item.active {
+            background: var(--gray-100);
+        }
+        .conversation-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .conversation-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .conversation-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .conversation-preview {
+            font-size: 13px;
+            color: var(--gray-500);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--gray-50);
+        }
+        .chat-header {
+            padding: 20px;
+            background: #fff;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chat-header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .chat-header-info h4 {
+            margin: 0 0 2px 0;
+            font-size: 16px;
+        }
+        .chat-header-info span {
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+        }
+        .message.mine {
+            margin-left: auto;
+            align-items: flex-end;
+        }
+        .message-content {
+            display: inline-block;
+            padding: 12px 16px;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            line-height: 1.4;
+        }
+        .message.mine .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .message-time {
+            font-size: 11px;
+            color: var(--gray-500);
+            margin-top: 4px;
+            padding: 0 8px;
+        }
+        .chat-input-area {
+            padding: 20px;
+            background: #fff;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            gap: 12px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--gray-200);
+            border-radius: 24px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: var(--gray-400);
+        }
+        .btn-send {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .btn-send:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+        .btn-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .empty-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+            padding: 40px;
+            text-align: center;
+        }
+        .empty-chat-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 32px;
+        }
+        .empty-chat h3 {
+            margin: 0 0 8px 0;
+            color: var(--gray-900);
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            margin: 0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-500);
+        }
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-bottom: 1px solid var(--gray-200);
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+        .search-input:focus {
+            outline: none;
+            border-bottom: 1px solid var(--gray-200);
+            background: white;
+        }
+        .student-list {
+            padding: 0;
+        }
+        .student-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+            width: 100%;
+            background: none;
+            text-align: left;
+        }
+        .student-item:hover {
+            background: var(--gray-100);
+        }
+        .student-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .student-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 15px;
+        }
+        .student-info span {
+            font-size: 13px;
+            color: var(--gray-500);
+        }
+        .no-conversations {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--gray-500);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-logo">Smart Classroom</div>
+            <nav class="sidebar-nav">
+                <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
+                <a href="/teacher/classrooms" class="nav-item">Phòng học</a>
+                <a href="/teacher/questions" class="nav-item">Ngân hàng câu hỏi</a>
+                <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
+                <a href="/teacher/tests" class="nav-item">Đề thi</a>
+                <a href="/teacher/chat" class="nav-item active">Chat</a>
+                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>
+                <a href="/teacher/profile" class="nav-item">Cài đặt</a>
+            </nav>
+            <div>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn btn-ghost" style="width: 100%;">Đăng xuất</button>
+                </form>
+            </div>
+        </aside>
+
+        <main class="main-content" style="padding: 0; display: flex; flex-direction: column;">
+            <div class="chat-main-container">
+                <div class="chat-sidebar">
+                    <div class="chat-sidebar-header">
+                        <h3>Tin nhắn</h3>
+                        <button class="new-chat-btn" onclick="openNewChatModal()">+ Mới</button>
+                    </div>
+                    <div class="conversations-list">
+                        <div th:if="${conversations.isEmpty()}" class="no-conversations">
+                            <p>Chưa có cuộc trò chuyện nào</p>
+                            <p style="font-size: 13px;">Bấm "+ Mới" để bắt đầu chat với học sinh</p>
+                        </div>
+                        <div th:if="${!conversations.isEmpty()}">
+                            <a th:each="conv : ${conversations}" 
+                               th:href="@{/teacher/chat(conversationId=${conv.id})}"
+                               class="conversation-item"
+                               th:classappend="${selectedConversation != null && selectedConversation.id == conv.id ? 'active' : ''}">
+                                <div class="conversation-avatar" th:text="${#strings.substring(conv.student.fullName, 0, 1).toUpperCase()}"></div>
+                                <div class="conversation-info">
+                                    <div class="conversation-name" th:text="${conv.student.fullName}"></div>
+                                    <div class="conversation-preview">Bắt đầu cuộc trò chuyện...</div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-area">
+                    <div th:if="${selectedConversation == null}" class="empty-chat">
+                        <div class="empty-chat-icon">💬</div>
+                        <h3>Chọn một cuộc trò chuyện</h3>
+                        <p>Chọn từ danh sách bên trái hoặc bắt đầu cuộc trò chuyện mới</p>
+                    </div>
+
+                    <div th:if="${selectedConversation != null}" style="display: flex; flex-direction: column; height: 100%;">
+                        <div class="chat-header">
+                            <div class="chat-header-avatar" th:text="${#strings.substring(selectedConversation.student.fullName, 0, 1).toUpperCase()}"></div>
+                            <div class="chat-header-info">
+                                <h4 th:text="${selectedConversation.student.fullName}"></h4>
+                                <span th:text="${selectedConversation.student.email}"></span>
+                            </div>
+                        </div>
+                        <div class="messages-container" id="messagesContainer">
+                            <div th:each="msg : ${messages}" 
+                                 th:class="'message' + (${msg.sender.id == currentUser.id} ? ' mine' : '')">
+                                <div class="message-content" th:text="${msg.content}"></div>
+                                <div class="message-time" th:text="${#temporals.format(msg.sentAt, 'HH:mm')}"></div>
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="messageInput" class="chat-input" placeholder="Nhập tin nhắn..." 
+                                   onkeypress="if(event.key==='Enter')sendMessage()">
+                            <button class="btn-send" onclick="sendMessage()">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="newChatModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Chọn học sinh</h3>
+                <button class="modal-close" onclick="closeNewChatModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="studentSearchInput" class="search-input" 
+                       placeholder="Tìm kiếm học sinh..." onkeyup="filterStudents(this.value)">
+                <form id="newChatForm" th:action="@{/teacher/chat/new}" method="post">
+                    <div class="student-list" id="studentList">
+                        <button th:each="student : ${students}" 
+                                type="submit" 
+                                name="studentId" 
+                                th:value="${student.id}"
+                                class="student-item"
+                                th:attr="data-name=${student.fullName}, data-email=${student.email}">
+                            <div class="student-avatar" th:text="${#strings.substring(student.fullName, 0, 1).toUpperCase()}"></div>
+                            <div class="student-info">
+                                <h4 th:text="${student.fullName}"></h4>
+                                <span th:text="${student.email}"></span>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script th:inline="javascript">
+        const currentUserId = /*[[${currentUser.id}]]*/ 0;
+        const currentUserName = /*[[${currentUser.fullName}]]*/ '';
+        const currentConversationId = /*[[${selectedConversation?.id}]]*/ null;
+    </script>
+    <script>
+        let stompClient = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWebSocket();
+            if (currentConversationId) {
+                scrollToBottom();
+            }
+        });
+
+        function connectWebSocket() {
+            const socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.debug = null;
+            stompClient.connect({}, function(frame) {
+                console.log('WebSocket connected');
+                if (currentConversationId) {
+                    stompClient.subscribe('/topic/conversation.' + currentConversationId, function(message) {
+                        const msg = JSON.parse(message.body);
+                        appendMessage(msg);
+                    });
+                }
+            });
+        }
+
+        function openNewChatModal() {
+            document.getElementById('newChatModal').classList.add('active');
+            const searchInput = document.getElementById('studentSearchInput');
+            if (searchInput) {
+                searchInput.value = '';
+                filterStudents('');
+            }
+        }
+
+        function closeNewChatModal() {
+            document.getElementById('newChatModal').classList.remove('active');
+        }
+
+        function filterStudents(query) {
+            const items = document.querySelectorAll('.student-item');
+            const lowerQuery = query.toLowerCase();
+            items.forEach(item => {
+                const name = item.getAttribute('data-name').toLowerCase();
+                const email = item.getAttribute('data-email').toLowerCase();
+                if (name.includes(lowerQuery) || email.includes(lowerQuery)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            if (!content || !currentConversationId || !stompClient) return;
+
+            stompClient.send('/app/chat.send', {}, JSON.stringify({
+                conversationId: currentConversationId,
+                content: content
+            }));
+
+            input.value = '';
+        }
+
+        function appendMessage(msg) {
+            const container = document.getElementById('messagesContainer');
+            if (!container) return;
+
+            const isMine = msg.sender.id === currentUserId;
+            const time = new Date(msg.sentAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message' + (isMine ? ' mine' : '');
+            messageDiv.innerHTML = `
+                <div class="message-content">${escapeHtml(msg.content)}</div>
+                <div class="message-time">${time}</div>
+            `;
+            
+            container.appendChild(messageDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            const container = document.getElementById('messagesContainer');
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
