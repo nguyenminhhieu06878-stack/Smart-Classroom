@@ -28,6 +28,11 @@
             text-align: center;
             margin-bottom: var(--spacing-xl);
         }
+        .login-logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: var(--spacing-md);
+        }
         .login-title {
             font-size: 24px;
             font-weight: 600;
@@ -75,7 +80,7 @@
         <div class="login-box">
             <div class="login-card">
                 <div class="login-header">
-                    <div class="login-title">Smart Classroom</div>
+                    <img th:src="@{/image.png}" alt="Smart Classroom Logo" class="login-logo">
                     <div class="login-subtitle">Đăng nhập vào tài khoản</div>
                 </div>
                 

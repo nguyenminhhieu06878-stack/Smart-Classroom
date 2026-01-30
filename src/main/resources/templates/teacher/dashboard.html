@@ -9,7 +9,7 @@
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-logo">Smart Classroom</div>
+            <img th:src="@{/image.png}" alt="Smart Classroom" class="sidebar-logo-img">
             
             <nav class="sidebar-nav">
                 <a href="/teacher/dashboard" class="nav-item active">Bảng điều khiển</a>
@@ -18,7 +18,7 @@
                 <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
                 <a href="/teacher/tests" class="nav-item">Đề thi</a>
                 <a href="/teacher/chat" class="nav-item">Chat</a>
-                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>
+<!--                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>-->
                 <a href="/teacher/profile" class="nav-item">Cài đặt</a>
             </nav>
             
@@ -39,19 +39,19 @@
             </header>
 
             <div class="content">
-                <!-- Warnings -->
-                <div th:if="${warningMessage}" style="margin-bottom: 24px; padding: 16px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; color: #856404;">
-                    <strong>⚠️ Cảnh báo:</strong> <span th:text="${warningMessage}"></span>
-                    <a href="/teacher/subscription" style="margin-left: 12px; color: #856404; text-decoration: underline;">Gia hạn ngay</a>
-                </div>
-                
-                <div th:if="${aiLessonWarning}" style="margin-bottom: 24px; padding: 16px; background: #e3f2fd; border: 1px solid #2196F3; border-radius: 8px; color: #0d47a1;">
-                    <strong>ℹ️ Thông báo:</strong> <span th:text="${aiLessonWarning}"></span>
-                </div>
-                
-                <div th:if="${testWarning}" style="margin-bottom: 24px; padding: 16px; background: #e3f2fd; border: 1px solid #2196F3; border-radius: 8px; color: #0d47a1;">
-                    <strong>ℹ️ Thông báo:</strong> <span th:text="${testWarning}"></span>
-                </div>
+                <!-- Warnings (Hidden) -->
+<!--                <div th:if="${warningMessage}" style="margin-bottom: 24px; padding: 16px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; color: #856404;">-->
+<!--                    <strong>⚠️ Cảnh báo:</strong> <span th:text="${warningMessage}"></span>-->
+<!--                    <a href="/teacher/subscription" style="margin-left: 12px; color: #856404; text-decoration: underline;">Gia hạn ngay</a>-->
+<!--                </div>-->
+<!--                -->
+<!--                <div th:if="${aiLessonWarning}" style="margin-bottom: 24px; padding: 16px; background: #e3f2fd; border: 1px solid #2196F3; border-radius: 8px; color: #0d47a1;">-->
+<!--                    <strong>ℹ️ Thông báo:</strong> <span th:text="${aiLessonWarning}"></span>-->
+<!--                </div>-->
+<!--                -->
+<!--                <div th:if="${testWarning}" style="margin-bottom: 24px; padding: 16px; background: #e3f2fd; border: 1px solid #2196F3; border-radius: 8px; color: #0d47a1;">-->
+<!--                    <strong>ℹ️ Thông báo:</strong> <span th:text="${testWarning}"></span>-->
+<!--                </div>-->
                 
                 <!-- Stats -->
                 <div class="stats-grid">

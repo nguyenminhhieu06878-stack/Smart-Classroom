@@ -64,42 +64,42 @@ public class TeacherController {
                 .mapToLong(c -> classroomMemberService.countByClassroomAndStatus(c, ClassroomMember.Status.ACTIVE))
                 .sum();
 
-        // Get active subscription for usage warnings
-        Subscription activeSubscription = paymentService.getActiveSubscription(teacher);
-        if (activeSubscription != null) {
-            // Check for warnings
-            long daysRemaining = activeSubscription.getDaysRemaining();
-            if (daysRemaining <= 7 && daysRemaining > 0) {
-                model.addAttribute("warningMessage",
-                        "Gói dịch vụ của bạn sẽ hết hạn trong " + daysRemaining
-                                + " ngày. Vui lòng gia hạn để tiếp tục sử dụng.");
-            }
-
-            // Check AI lesson usage
-            Integer aiLessonsUsed = activeSubscription.getAiLessonsUsed() != null
-                    ? activeSubscription.getAiLessonsUsed()
-                    : 0;
-            Integer aiLessonsLimit = activeSubscription.getPlan().getAiLessonsPerMonth();
-            if (aiLessonsLimit != null && aiLessonsLimit > 0) {
-                double usagePercent = (aiLessonsUsed * 100.0) / aiLessonsLimit;
-                if (usagePercent >= 80) {
-                    model.addAttribute("aiLessonWarning",
-                            "Bạn đã sử dụng " + aiLessonsUsed + "/" + aiLessonsLimit + " lượt tạo bài giảng AI.");
-                }
-            }
-
-            // Check test creation usage
-            Integer testsCreated = activeSubscription.getTestsCreated() != null ? activeSubscription.getTestsCreated()
-                    : 0;
-            Integer testsLimit = activeSubscription.getPlan().getTestsPerMonth();
-            if (testsLimit != null && testsLimit > 0) {
-                double usagePercent = (testsCreated * 100.0) / testsLimit;
-                if (usagePercent >= 80) {
-                    model.addAttribute("testWarning",
-                            "Bạn đã tạo " + testsCreated + "/" + testsLimit + " đề thi trong tháng.");
-                }
-            }
-        }
+        // Subscription hidden - skip usage warnings
+        // Subscription activeSubscription = paymentService.getActiveSubscription(teacher);
+        // if (activeSubscription != null) {
+        //     // Check for warnings
+        //     long daysRemaining = activeSubscription.getDaysRemaining();
+        //     if (daysRemaining <= 7 && daysRemaining > 0) {
+        //         model.addAttribute("warningMessage",
+        //                 "Gói dịch vụ của bạn sẽ hết hạn trong " + daysRemaining
+        //                         + " ngày. Vui lòng gia hạn để tiếp tục sử dụng.");
+        //     }
+        //
+        //     // Check AI lesson usage
+        //     Integer aiLessonsUsed = activeSubscription.getAiLessonsUsed() != null
+        //             ? activeSubscription.getAiLessonsUsed()
+        //             : 0;
+        //     Integer aiLessonsLimit = activeSubscription.getPlan().getAiLessonsPerMonth();
+        //     if (aiLessonsLimit != null && aiLessonsLimit > 0) {
+        //         double usagePercent = (aiLessonsUsed * 100.0) / aiLessonsLimit;
+        //         if (usagePercent >= 80) {
+        //             model.addAttribute("aiLessonWarning",
+        //                     "Bạn đã sử dụng " + aiLessonsUsed + "/" + aiLessonsLimit + " lượt tạo bài giảng AI.");
+        //         }
+        //     }
+        //
+        //     // Check test creation usage
+        //     Integer testsCreated = activeSubscription.getTestsCreated() != null ? activeSubscription.getTestsCreated()
+        //             : 0;
+        //     Integer testsLimit = activeSubscription.getPlan().getTestsPerMonth();
+        //     if (testsLimit != null && testsLimit > 0) {
+        //         double usagePercent = (testsCreated * 100.0) / testsLimit;
+        //         if (usagePercent >= 80) {
+        //             model.addAttribute("testWarning",
+        //                     "Bạn đã tạo " + testsCreated + "/" + testsLimit + " đề thi trong tháng.");
+        //         }
+        //     }
+        // }
 
         model.addAttribute("teacher", teacher);
         model.addAttribute("questionCount", questionCount);
@@ -107,7 +107,8 @@ public class TeacherController {
         model.addAttribute("testCount", testCount);
         model.addAttribute("classroomCount", classroomCount);
         model.addAttribute("studentCount", totalStudents);
-        model.addAttribute("activeSubscription", activeSubscription);
+        // Subscription hidden
+        model.addAttribute("activeSubscription", null);
 
         return "teacher/dashboard";
     }
@@ -153,11 +154,17 @@ public class TeacherController {
 
             // Manual pagination
             int totalItems = allQuestions.size();
-            int totalPages = totalItems > 0 ? (int) Math.ceil((double) totalItems / size) : 0;
+            int totalPages = totalItems > 0 ? (int) Math.ceil((double) totalItems / size) : 1;
+            
+            // Validate page number
+            if (page < 0) page = 0;
+            if (page >= totalPages && totalPages > 0) page = totalPages - 1;
+            
             int fromIndex = page * size;
             int toIndex = Math.min(fromIndex + size, totalItems);
 
-            List<Question> pageQuestions = (fromIndex < totalItems) ? allQuestions.subList(fromIndex, toIndex)
+            List<Question> pageQuestions = (fromIndex < totalItems && fromIndex >= 0) 
+                    ? allQuestions.subList(fromIndex, toIndex)
                     : new ArrayList<>();
 
             System.out.println("=== DEBUG: Page " + page + " has " + pageQuestions.size() + " questions");
@@ -1000,9 +1007,10 @@ public class TeacherController {
     @GetMapping("/profile")
     public String profile(Authentication auth, Model model) {
         User teacher = getCurrentUser(auth);
-        Subscription activeSubscription = paymentService.getActiveSubscription(teacher);
+        // Subscription hidden - always return null
+        // Subscription activeSubscription = paymentService.getActiveSubscription(teacher);
         model.addAttribute("user", teacher);
-        model.addAttribute("activeSubscription", activeSubscription);
+        model.addAttribute("activeSubscription", null);
         return "teacher/profile";
     }
 
@@ -1016,103 +1024,103 @@ public class TeacherController {
         return "redirect:/teacher/profile";
     }
 
-    // ========== SUBSCRIPTION ==========
-
-    @GetMapping("/subscription")
-    public String subscription(Authentication auth, Model model) {
-        User teacher = getCurrentUser(auth);
-        List<Plan> plans = subscriptionService.getAllPlans();
-
-        // Get active subscription with usage stats
-        Subscription activeSubscription = paymentService.getActiveSubscription(teacher);
-
-        model.addAttribute("teacher", teacher);
-        model.addAttribute("plans", plans);
-        model.addAttribute("activeSubscription", activeSubscription);
-        return "teacher/subscription";
-    }
-
-    @PostMapping("/subscription/upgrade")
-    public String upgradePlan(@RequestParam Long planId,
-            @RequestParam(defaultValue = "1") int months,
-            Authentication auth,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-        User teacher = getCurrentUser(auth);
-        Plan plan = subscriptionService.getPlanById(planId)
-                .orElseThrow(() -> new RuntimeException("Plan not found"));
-
-        // Nếu là gói miễn phí (price = 0), activate trực tiếp không cần PayOS
-        if (plan.getPrice() == 0) {
-            try {
-                // Cancel any existing active subscriptions
-                List<Subscription> activeSubscriptions = subscriptionService.getActiveSubscriptions(teacher);
-
-                for (Subscription activeSub : activeSubscriptions) {
-                    activeSub.setStatus(Subscription.Status.CANCELLED);
-                    subscriptionService.saveSubscription(activeSub);
-                }
-
-                // Create free subscription (vĩnh viễn)
-                Subscription subscription = new Subscription();
-                subscription.setUser(teacher);
-                subscription.setPlan(plan);
-                subscription.setStatus(Subscription.Status.ACTIVE);
-                subscription.setPaymentStatus(Subscription.PaymentStatus.PAID);
-                subscription.setStartDate(LocalDateTime.now());
-                subscription.setEndDate(LocalDateTime.now().plusYears(100)); // Vĩnh viễn
-                subscription.setAmount(0.0);
-                subscription.setPaymentMethod("FREE");
-                subscription.setTransactionId("FREE-" + System.currentTimeMillis());
-                subscriptionService.saveSubscription(subscription);
-
-                redirectAttributes.addFlashAttribute("successMessage",
-                        "Đã kích hoạt gói miễn phí thành công!");
-
-                return "redirect:/teacher/subscription";
-
-            } catch (Exception e) {
-                log.error("Error activating free plan", e);
-                redirectAttributes.addFlashAttribute("errorMessage",
-                        "Có lỗi xảy ra khi kích hoạt gói miễn phí.");
-                return "redirect:/teacher/subscription";
-            }
-        }
-
-        // Gói trả phí - dùng PayOS
-        try {
-            // Create payment link with PayOS
-            Map<String, Object> paymentData = paymentService.createPaymentLink(teacher, plan, months);
-
-            // PayOS may return different field names, check both
-            String checkoutUrl = null;
-            if (paymentData.containsKey("checkoutUrl")) {
-                checkoutUrl = (String) paymentData.get("checkoutUrl");
-            } else if (paymentData.containsKey("checkout_url")) {
-                checkoutUrl = (String) paymentData.get("checkout_url");
-            } else if (paymentData.containsKey("paymentUrl")) {
-                checkoutUrl = (String) paymentData.get("paymentUrl");
-            } else if (paymentData.containsKey("payment_url")) {
-                checkoutUrl = (String) paymentData.get("payment_url");
-            }
-
-            if (checkoutUrl == null || checkoutUrl.isEmpty()) {
-                log.error("No checkout URL in PayOS response. Available keys: {}", paymentData.keySet());
-                redirectAttributes.addFlashAttribute("errorMessage",
-                        "Không tìm thấy link thanh toán trong response từ PayOS");
-                return "redirect:/teacher/subscription";
-            }
-
-            // Redirect to PayOS payment page
-            return "redirect:" + checkoutUrl;
-
-        } catch (Exception e) {
-            log.error("Error in upgradePlan", e);
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "Không thể tạo link thanh toán: " + e.getMessage());
-            return "redirect:/teacher/subscription";
-        }
-    }
+    // ========== SUBSCRIPTION (HIDDEN) ==========
+//
+//    @GetMapping("/subscription")
+//    public String subscription(Authentication auth, Model model) {
+//        User teacher = getCurrentUser(auth);
+//        List<Plan> plans = subscriptionService.getAllPlans();
+//
+//        // Get active subscription with usage stats
+//        Subscription activeSubscription = paymentService.getActiveSubscription(teacher);
+//
+//        model.addAttribute("teacher", teacher);
+//        model.addAttribute("plans", plans);
+//        model.addAttribute("activeSubscription", activeSubscription);
+//        return "teacher/subscription";
+//    }
+//
+//    @PostMapping("/subscription/upgrade")
+//    public String upgradePlan(@RequestParam Long planId,
+//            @RequestParam(defaultValue = "1") int months,
+//            Authentication auth,
+//            Model model,
+//            RedirectAttributes redirectAttributes) {
+//        User teacher = getCurrentUser(auth);
+//        Plan plan = subscriptionService.getPlanById(planId)
+//                .orElseThrow(() -> new RuntimeException("Plan not found"));
+//
+//        // Nếu là gói miễn phí (price = 0), activate trực tiếp không cần PayOS
+//        if (plan.getPrice() == 0) {
+//            try {
+//                // Cancel any existing active subscriptions
+//                List<Subscription> activeSubscriptions = subscriptionService.getActiveSubscriptions(teacher);
+//
+//                for (Subscription activeSub : activeSubscriptions) {
+//                    activeSub.setStatus(Subscription.Status.CANCELLED);
+//                    subscriptionService.saveSubscription(activeSub);
+//                }
+//
+//                // Create free subscription (vĩnh viễn)
+//                Subscription subscription = new Subscription();
+//                subscription.setUser(teacher);
+//                subscription.setPlan(plan);
+//                subscription.setStatus(Subscription.Status.ACTIVE);
+//                subscription.setPaymentStatus(Subscription.PaymentStatus.PAID);
+//                subscription.setStartDate(LocalDateTime.now());
+//                subscription.setEndDate(LocalDateTime.now().plusYears(100)); // Vĩnh viễn
+//                subscription.setAmount(0.0);
+//                subscription.setPaymentMethod("FREE");
+//                subscription.setTransactionId("FREE-" + System.currentTimeMillis());
+//                subscriptionService.saveSubscription(subscription);
+//
+//                redirectAttributes.addFlashAttribute("successMessage",
+//                        "Đã kích hoạt gói miễn phí thành công!");
+//
+//                return "redirect:/teacher/subscription";
+//
+//            } catch (Exception e) {
+//                log.error("Error activating free plan", e);
+//                redirectAttributes.addFlashAttribute("errorMessage",
+//                        "Có lỗi xảy ra khi kích hoạt gói miễn phí.");
+//                return "redirect:/teacher/subscription";
+//            }
+//        }
+//
+//        // Gói trả phí - dùng PayOS
+//        try {
+//            // Create payment link with PayOS
+//            Map<String, Object> paymentData = paymentService.createPaymentLink(teacher, plan, months);
+//
+//            // PayOS may return different field names, check both
+//            String checkoutUrl = null;
+//            if (paymentData.containsKey("checkoutUrl")) {
+//                checkoutUrl = (String) paymentData.get("checkoutUrl");
+//            } else if (paymentData.containsKey("checkout_url")) {
+//                checkoutUrl = (String) paymentData.get("checkout_url");
+//            } else if (paymentData.containsKey("paymentUrl")) {
+//                checkoutUrl = (String) paymentData.get("paymentUrl");
+//            } else if (paymentData.containsKey("payment_url")) {
+//                checkoutUrl = (String) paymentData.get("payment_url");
+//            }
+//
+//            if (checkoutUrl == null || checkoutUrl.isEmpty()) {
+//                log.error("No checkout URL in PayOS response. Available keys: {}", paymentData.keySet());
+//                redirectAttributes.addFlashAttribute("errorMessage",
+//                        "Không tìm thấy link thanh toán trong response từ PayOS");
+//                return "redirect:/teacher/subscription";
+//            }
+//
+//            // Redirect to PayOS payment page
+//            return "redirect:" + checkoutUrl;
+//
+//        } catch (Exception e) {
+//            log.error("Error in upgradePlan", e);
+//            redirectAttributes.addFlashAttribute("errorMessage",
+//                    "Không thể tạo link thanh toán: " + e.getMessage());
+//            return "redirect:/teacher/subscription";
+//        }
+//    }
 
     // ========== LỊCH SỬ AI ==========
 

@@ -9,7 +9,7 @@
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-logo">Smart Classroom</div>
+            <img th:src="@{/image.png}" alt="Smart Classroom" class="sidebar-logo-img">
             
             <nav class="sidebar-nav">
                 <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
@@ -77,8 +77,6 @@
                                         <label class="form-label">Lớp</label>
                                         <select th:field="*{grade}" class="form-select" required>
                                             <option value="">Chọn lớp</option>
-                                            <option value="Lớp 1">Lớp 1</option>
-                                            <option value="Lớp 2">Lớp 2</option>
                                             <option value="Lớp 3">Lớp 3</option>
                                             <option value="Lớp 4">Lớp 4</option>
                                             <option value="Lớp 5">Lớp 5</option>

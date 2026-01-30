@@ -9,7 +9,7 @@
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-logo">Smart Classroom</div>
+            <img th:src="@{/image.png}" alt="Smart Classroom" class="sidebar-logo-img">
             
             <nav class="sidebar-nav">
                 <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
@@ -18,7 +18,7 @@
                 <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
                 <a href="/teacher/tests" class="nav-item">Đề thi</a>
                 <a href="/teacher/chat" class="nav-item">Chat</a>
-                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>
+<!--                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>-->
                 <a href="/teacher/profile" class="nav-item">Cài đặt</a>
             </nav>
             
@@ -57,8 +57,6 @@
                                 <label class="form-label">Lớp</label>
                                 <select name="grade" class="form-select" th:value="${grade}">
                                     <option value="">Tất cả lớp</option>
-                                    <option value="Lớp 1" th:selected="${grade == 'Lớp 1'}">Lớp 1</option>
-                                    <option value="Lớp 2" th:selected="${grade == 'Lớp 2'}">Lớp 2</option>
                                     <option value="Lớp 3" th:selected="${grade == 'Lớp 3'}">Lớp 3</option>
                                     <option value="Lớp 4" th:selected="${grade == 'Lớp 4'}">Lớp 4</option>
                                     <option value="Lớp 5" th:selected="${grade == 'Lớp 5'}">Lớp 5</option>
@@ -106,7 +104,7 @@
                                 <td>
                                     <span class="badge" 
                                           th:classappend="${q.difficulty.name() == 'EASY'} ? 'badge-success' : (${q.difficulty.name() == 'MEDIUM'} ? 'badge-warning' : 'badge-danger')"
-                                          th:text="${q.difficulty == T(com.smartclass.model.Question$Difficulty).EASY} ? 'Dễ' : (${q.difficulty == T(com.smartclass.model.Question$Difficulty).MEDIUM} ? 'TB' : 'Khó')"></span>
+                                          th:text="${q.difficulty.name() == 'EASY'} ? 'Dễ' : (${q.difficulty.name() == 'MEDIUM'} ? 'TB' : 'Khó')"></span>
                                 </td>
                                 <td th:text="${q.points}"></td>
                                 <td>

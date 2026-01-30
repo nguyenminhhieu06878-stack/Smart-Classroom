@@ -10,13 +10,13 @@
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-logo">Smart Classroom</div>
+            <img th:src="@{/image.png}" alt="Smart Classroom" class="sidebar-logo-img">
             
             <nav class="sidebar-nav">
                 <a href="/admin/dashboard" class="nav-item active">Bảng điều khiển</a>
                 <a href="/admin/users" class="nav-item">Ngườii dùng</a>
-                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>
-                <a href="/admin/payments" class="nav-item">Thanh toán</a>
+<!--                <a href="/admin/plans" class="nav-item">Gói dịch vụ</a>-->
+<!--                <a href="/admin/payments" class="nav-item">Thanh toán</a>-->
                 <a href="/admin/questions" class="nav-item">Ngân hàng câu hỏi</a>
                 <a href="/admin/lessons" class="nav-item">Bài giảng</a>
                 <a href="/admin/tests" class="nav-item">Đề thi</a>
@@ -74,25 +74,25 @@
                     </div>
                 </div>
 
-                <!-- Revenue Section -->
-                <div class="card mb-lg">
-                    <div class="card-body">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 24px;">
-                            <div>
-                                <h3 class="card-title mb-sm">Doanh thu 30 ngày qua</h3>
-                                <div style="font-size: 36px; font-weight: 600; margin-bottom: 4px;">
-                                    <span th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')}">0</span>đ
-                                </div>
-                                <div class="text-sm text-secondary">Tổng doanh thu trong tháng</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Chart -->
-                        <div style="height: 300px; position: relative;">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-                    </div>
-                </div>
+                <!-- Revenue Section (Hidden) -->
+<!--                <div class="card mb-lg">-->
+<!--                    <div class="card-body">-->
+<!--                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 24px;">-->
+<!--                            <div>-->
+<!--                                <h3 class="card-title mb-sm">Doanh thu 30 ngày qua</h3>-->
+<!--                                <div style="font-size: 36px; font-weight: 600; margin-bottom: 4px;">-->
+<!--                                    <span th:text="${#numbers.formatDecimal(monthlyRevenue, 0, 'COMMA', 0, 'POINT')}">0</span>đ-->
+<!--                                </div>-->
+<!--                                <div class="text-sm text-secondary">Tổng doanh thu trong tháng</div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        -->
+<!--                        &lt;!&ndash; Chart &ndash;&gt;-->
+<!--                        <div style="height: 300px; position: relative;">-->
+<!--                            <canvas id="revenueChart"></canvas>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
                 <!-- Content Stats -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px;">
@@ -137,38 +137,38 @@
                     </div>
                 </div>
 
-                <!-- Recent Subscriptions -->
-                <div th:if="${!#lists.isEmpty(recentSubscriptions)}" class="card">
-                    <div class="card-body">
-                        <h3 class="card-title mb-md">Gói đăng ký gần đây</h3>
-                        <div class="table-container">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Ngườii dùng</th>
-                                        <th>Gói</th>
-                                        <th>Số tiền</th>
-                                        <th>Trạng thái</th>
-                                        <th>Ngày đăng ký</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="sub : ${recentSubscriptions}">
-                                        <td th:text="${sub.user.fullName}"></td>
-                                        <td th:text="${sub.plan.name}"></td>
-                                        <td th:text="${#numbers.formatDecimal(sub.amount, 0, 'COMMA', 0, 'POINT')} + 'đ'"></td>
-                                        <td>
-                                            <span th:if="${sub.status.name() == 'ACTIVE'}" class="badge" style="background: #10b981;">Hoạt động</span>
-                                            <span th:if="${sub.status.name() == 'EXPIRED'}" class="badge" style="background: #ef4444;">Hết hạn</span>
-                                            <span th:if="${sub.status.name() == 'CANCELLED'}" class="badge" style="background: #6b7280;">Đã hủy</span>
-                                        </td>
-                                        <td class="text-sm" th:text="${#temporals.format(sub.createdAt, 'dd/MM/yyyy')}"></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                <!-- Recent Subscriptions (Hidden) -->
+<!--                <div th:if="${!#lists.isEmpty(recentSubscriptions)}" class="card">-->
+<!--                    <div class="card-body">-->
+<!--                        <h3 class="card-title mb-md">Gói đăng ký gần đây</h3>-->
+<!--                        <div class="table-container">-->
+<!--                            <table class="table">-->
+<!--                                <thead>-->
+<!--                                    <tr>-->
+<!--                                        <th>Ngườii dùng</th>-->
+<!--                                        <th>Gói</th>-->
+<!--                                        <th>Số tiền</th>-->
+<!--                                        <th>Trạng thái</th>-->
+<!--                                        <th>Ngày đăng ký</th>-->
+<!--                                    </tr>-->
+<!--                                </thead>-->
+<!--                                <tbody>-->
+<!--                                    <tr th:each="sub : ${recentSubscriptions}">-->
+<!--                                        <td th:text="${sub.user.fullName}"></td>-->
+<!--                                        <td th:text="${sub.plan.name}"></td>-->
+<!--                                        <td th:text="${#numbers.formatDecimal(sub.amount, 0, 'COMMA', 0, 'POINT')} + 'đ'"></td>-->
+<!--                                        <td>-->
+<!--                                            <span th:if="${sub.status.name() == 'ACTIVE'}" class="badge" style="background: #10b981;">Hoạt động</span>-->
+<!--                                            <span th:if="${sub.status.name() == 'EXPIRED'}" class="badge" style="background: #ef4444;">Hết hạn</span>-->
+<!--                                            <span th:if="${sub.status.name() == 'CANCELLED'}" class="badge" style="background: #6b7280;">Đã hủy</span>-->
+<!--                                        </td>-->
+<!--                                        <td class="text-sm" th:text="${#temporals.format(sub.createdAt, 'dd/MM/yyyy')}"></td>-->
+<!--                                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
         </main>
     </div>

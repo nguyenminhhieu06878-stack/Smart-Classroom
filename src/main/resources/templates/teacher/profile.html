@@ -9,7 +9,7 @@
     <div class="app-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-logo">Smart Classroom</div>
+            <img th:src="@{/image.png}" alt="Smart Classroom" class="sidebar-logo-img">
             
             <nav class="sidebar-nav">
                 <a href="/teacher/dashboard" class="nav-item">Bảng điều khiển</a>
@@ -18,7 +18,7 @@
                 <a href="/teacher/lessons" class="nav-item">Bài giảng</a>
                 <a href="/teacher/tests" class="nav-item">Đề thi</a>
                 <a href="/teacher/chat" class="nav-item">Chat</a>
-                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>
+<!--                <a href="/teacher/subscription" class="nav-item">Gói dịch vụ</a>-->
                 <a href="/teacher/profile" class="nav-item active">Cài đặt</a>
             </nav>
             
@@ -37,43 +37,43 @@
 
             <div class="content">
                 <div style="max-width: 800px;">
-                    <!-- Current Plan Card -->
-                    <div class="card" style="margin-bottom: 24px;" th:if="${activeSubscription != null}">
-                        <div class="card-body">
-                            <h3 class="card-title mb-lg">Gói dịch vụ hiện tại</h3>
-                            
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                                <div>
-                                    <div style="font-size: 20px; font-weight: 600;" th:text="${activeSubscription.plan.name}"></div>
-                                    <div style="color: var(--text-secondary); font-size: 14px;" th:text="${activeSubscription.plan.description}"></div>
-                                </div>
-                                <a href="/teacher/subscription" class="btn btn-ghost">Nâng cấp</a>
-                            </div>
-                            
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
-                                <div>
-                                    <div style="color: var(--text-secondary); font-size: 13px;">Còn lại</div>
-                                    <div style="font-size: 18px; font-weight: 600;">
-                                        <span th:text="${activeSubscription.daysRemaining}"></span> ngày
-                                    </div>
-                                </div>
-                                <div>
-                                    <div style="color: var(--text-secondary); font-size: 13px;">AI bài giảng</div>
-                                    <div style="font-size: 18px; font-weight: 600;">
-                                        <span th:text="${activeSubscription.aiLessonsUsed != null ? activeSubscription.aiLessonsUsed : 0}"></span>
-                                        / <span th:text="${activeSubscription.plan.aiLessonsPerMonth}"></span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div style="color: var(--text-secondary); font-size: 13px;">Đề thi</div>
-                                    <div style="font-size: 18px; font-weight: 600;">
-                                        <span th:text="${activeSubscription.testsCreated != null ? activeSubscription.testsCreated : 0}"></span>
-                                        / <span th:text="${activeSubscription.plan.testsPerMonth}"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Current Plan Card (Hidden) -->
+<!--                    <div class="card" style="margin-bottom: 24px;" th:if="${activeSubscription != null}">-->
+<!--                        <div class="card-body">-->
+<!--                            <h3 class="card-title mb-lg">Gói dịch vụ hiện tại</h3>-->
+<!--                            -->
+<!--                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">-->
+<!--                                <div>-->
+<!--                                    <div style="font-size: 20px; font-weight: 600;" th:text="${activeSubscription.plan.name}"></div>-->
+<!--                                    <div style="color: var(&#45;&#45;text-secondary); font-size: 14px;" th:text="${activeSubscription.plan.description}"></div>-->
+<!--                                </div>-->
+<!--                                <a href="/teacher/subscription" class="btn btn-ghost">Nâng cấp</a>-->
+<!--                            </div>-->
+<!--                            -->
+<!--                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">-->
+<!--                                <div>-->
+<!--                                    <div style="color: var(&#45;&#45;text-secondary); font-size: 13px;">Còn lại</div>-->
+<!--                                    <div style="font-size: 18px; font-weight: 600;">-->
+<!--                                        <span th:text="${activeSubscription.daysRemaining}"></span> ngày-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div>-->
+<!--                                    <div style="color: var(&#45;&#45;text-secondary); font-size: 13px;">AI bài giảng</div>-->
+<!--                                    <div style="font-size: 18px; font-weight: 600;">-->
+<!--                                        <span th:text="${activeSubscription.aiLessonsUsed != null ? activeSubscription.aiLessonsUsed : 0}"></span>-->
+<!--                                        / <span th:text="${activeSubscription.plan.aiLessonsPerMonth}"></span>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                                <div>-->
+<!--                                    <div style="color: var(&#45;&#45;text-secondary); font-size: 13px;">Đề thi</div>-->
+<!--                                    <div style="font-size: 18px; font-weight: 600;">-->
+<!--                                        <span th:text="${activeSubscription.testsCreated != null ? activeSubscription.testsCreated : 0}"></span>-->
+<!--                                        / <span th:text="${activeSubscription.plan.testsPerMonth}"></span>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
                     
                     <div class="card">
                         <div class="card-body">

@@ -44,21 +44,21 @@ AdminService {
         stats.put("totalClassrooms", classroomRepository.count());
 
         // Subscription stats
-        stats.put("activeSubscriptions", subscriptionRepository.countByStatus(Subscription.Status.ACTIVE));
-
-        // Revenue stats
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-        Double monthlyRevenue = subscriptionRepository.getTotalRevenue(thirtyDaysAgo);
-        stats.put("monthlyRevenue", monthlyRevenue != null ? monthlyRevenue : 0.0);
-
-        // AI Usage stats
-        stats.put("totalAIUsages", aiHistoryRepository.count());
-
-        // Recent subscriptions
-        List<Subscription> recentSubscriptions = subscriptionRepository.findRecentSubscriptions(
-            LocalDateTime.now().minusDays(7)
-        );
-        stats.put("recentSubscriptions", recentSubscriptions);
+//        stats.put("activeSubscriptions", subscriptionRepository.countByStatus(Subscription.Status.ACTIVE));
+//
+//        // Revenue stats
+//        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+//        Double monthlyRevenue = subscriptionRepository.getTotalRevenue(thirtyDaysAgo);
+//        stats.put("monthlyRevenue", monthlyRevenue != null ? monthlyRevenue : 0.0);
+//
+//        // AI Usage stats
+//        stats.put("totalAIUsages", aiHistoryRepository.count());
+//
+//        // Recent subscriptions
+//        List<Subscription> recentSubscriptions = subscriptionRepository.findRecentSubscriptions(
+//            LocalDateTime.now().minusDays(7)
+//        );
+//        stats.put("recentSubscriptions", recentSubscriptions);
 
         return stats;
     }
@@ -126,124 +126,124 @@ AdminService {
 
     // ========== PLAN MANAGEMENT ==========
 
-    public List<Plan> getAllPlans() {
-        return planRepository.findAll();
-    }
-
-    public Plan getPlanById(Long id) {
-        return planRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ"));
-    }
-
-    @Transactional
-    public Plan createPlan(Plan plan) {
-        plan.setActive(true);
-        return planRepository.save(plan);
-    }
-
-    @Transactional
-    public Plan updatePlan(Long id, Plan planDetails) {
-        Plan plan = getPlanById(id);
-        plan.setName(planDetails.getName());
-        plan.setDescription(planDetails.getDescription());
-        plan.setPrice(planDetails.getPrice());
-        plan.setMaxClasses(planDetails.getMaxClasses());
-        plan.setMaxStudents(planDetails.getMaxStudents());
-        plan.setAiLessonsPerMonth(planDetails.getAiLessonsPerMonth());
-        plan.setTestsPerMonth(planDetails.getTestsPerMonth());
-        plan.setMaxQuestionsBank(planDetails.getMaxQuestionsBank());
-        plan.setAutoGrading(planDetails.getAutoGrading());
-        plan.setAdvancedReports(planDetails.getAdvancedReports());
-        plan.setActive(planDetails.getActive());
-        return planRepository.save(plan);
-    }
-
-    @Transactional
-    public void deletePlan(Long id) {
-        Plan plan = getPlanById(id);
-        
-        // Check if plan is in use
-        List<Subscription> subscriptions = subscriptionRepository.findByPlan(plan);
-        if (!subscriptions.isEmpty()) {
-            throw new RuntimeException("Không thể xóa gói này vì đang có ngườii dùng sử dụng!");
-        }
-        
-        planRepository.deleteById(id);
-    }
-
-    @Transactional
-    public Plan togglePlanStatus(Long id) {
-        Plan plan = getPlanById(id);
-        plan.setActive(!plan.getActive());
-        return planRepository.save(plan);
-    }
+//    public List<Plan> getAllPlans() {
+//        return planRepository.findAll();
+//    }
+//
+//    public Plan getPlanById(Long id) {
+//        return planRepository.findById(id)
+//            .orElseThrow(() -> new RuntimeException("Không tìm thấy gói dịch vụ"));
+//    }
+//
+//    @Transactional
+//    public Plan createPlan(Plan plan) {
+//        plan.setActive(true);
+//        return planRepository.save(plan);
+//    }
+//
+//    @Transactional
+//    public Plan updatePlan(Long id, Plan planDetails) {
+//        Plan plan = getPlanById(id);
+//        plan.setName(planDetails.getName());
+//        plan.setDescription(planDetails.getDescription());
+//        plan.setPrice(planDetails.getPrice());
+//        plan.setMaxClasses(planDetails.getMaxClasses());
+//        plan.setMaxStudents(planDetails.getMaxStudents());
+//        plan.setAiLessonsPerMonth(planDetails.getAiLessonsPerMonth());
+//        plan.setTestsPerMonth(planDetails.getTestsPerMonth());
+//        plan.setMaxQuestionsBank(planDetails.getMaxQuestionsBank());
+//        plan.setAutoGrading(planDetails.getAutoGrading());
+//        plan.setAdvancedReports(planDetails.getAdvancedReports());
+//        plan.setActive(planDetails.getActive());
+//        return planRepository.save(plan);
+//    }
+//
+//    @Transactional
+//    public void deletePlan(Long id) {
+//        Plan plan = getPlanById(id);
+//
+//        // Check if plan is in use
+//        List<Subscription> subscriptions = subscriptionRepository.findByPlan(plan);
+//        if (!subscriptions.isEmpty()) {
+//            throw new RuntimeException("Không thể xóa gói này vì đang có ngườii dùng sử dụng!");
+//        }
+//
+//        planRepository.deleteById(id);
+//    }
+//
+//    @Transactional
+//    public Plan togglePlanStatus(Long id) {
+//        Plan plan = getPlanById(id);
+//        plan.setActive(!plan.getActive());
+//        return planRepository.save(plan);
+//    }
 
     // ========== PAYMENT MANAGEMENT ==========
 
-    public Map<String, Object> getPaymentStatistics() {
-        Map<String, Object> stats = new HashMap<>();
-        List<Subscription> subscriptions = subscriptionRepository.findAll();
-        subscriptions.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
-
-        long paidCount = subscriptions.stream()
-            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.PAID)
-            .count();
-        long pendingCount = subscriptions.stream()
-            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.PENDING)
-            .count();
-        long failedCount = subscriptions.stream()
-            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.FAILED)
-            .count();
-        double totalRevenue = subscriptions.stream()
-            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.PAID)
-            .mapToDouble(s -> s.getAmount() != null ? s.getAmount() : 0.0)
-            .sum();
-
-        stats.put("subscriptions", subscriptions);
-        stats.put("paidCount", paidCount);
-        stats.put("pendingCount", pendingCount);
-        stats.put("failedCount", failedCount);
-        stats.put("totalRevenue", totalRevenue);
-
-        return stats;
-    }
-
-    @Transactional
-    public void confirmPayment(Long subscriptionId) {
-        Subscription subscription = subscriptionRepository.findById(subscriptionId)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch"));
-        
-        // Cancel any existing active subscriptions for this user
-        List<Subscription> activeSubscriptions = subscriptionRepository
-            .findByUserAndStatus(subscription.getUser(), Subscription.Status.ACTIVE);
-        
-        for (Subscription activeSub : activeSubscriptions) {
-            if (!activeSub.getId().equals(subscriptionId)) {
-                activeSub.setStatus(Subscription.Status.CANCELLED);
-                subscriptionRepository.save(activeSub);
-            }
-        }
-        
-        // Activate new subscription
-        subscription.setPaymentStatus(Subscription.PaymentStatus.PAID);
-        subscription.setStatus(Subscription.Status.ACTIVE);
-        subscriptionRepository.save(subscription);
-        
-        // Update user's current plan
-        User user = subscription.getUser();
-        user.setCurrentPlan(subscription.getPlan());
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void cancelPayment(Long subscriptionId) {
-        Subscription subscription = subscriptionRepository.findById(subscriptionId)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch"));
-        
-        subscription.setPaymentStatus(Subscription.PaymentStatus.FAILED);
-        subscription.setStatus(Subscription.Status.CANCELLED);
-        subscriptionRepository.save(subscription);
-    }
+//    public Map<String, Object> getPaymentStatistics() {
+//        Map<String, Object> stats = new HashMap<>();
+//        List<Subscription> subscriptions = subscriptionRepository.findAll();
+//        subscriptions.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+//
+//        long paidCount = subscriptions.stream()
+//            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.PAID)
+//            .count();
+//        long pendingCount = subscriptions.stream()
+//            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.PENDING)
+//            .count();
+//        long failedCount = subscriptions.stream()
+//            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.FAILED)
+//            .count();
+//        double totalRevenue = subscriptions.stream()
+//            .filter(s -> s.getPaymentStatus() == Subscription.PaymentStatus.PAID)
+//            .mapToDouble(s -> s.getAmount() != null ? s.getAmount() : 0.0)
+//            .sum();
+//
+//        stats.put("subscriptions", subscriptions);
+//        stats.put("paidCount", paidCount);
+//        stats.put("pendingCount", pendingCount);
+//        stats.put("failedCount", failedCount);
+//        stats.put("totalRevenue", totalRevenue);
+//
+//        return stats;
+//    }
+//
+//    @Transactional
+//    public void confirmPayment(Long subscriptionId) {
+//        Subscription subscription = subscriptionRepository.findById(subscriptionId)
+//            .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch"));
+//
+//        // Cancel any existing active subscriptions for this user
+//        List<Subscription> activeSubscriptions = subscriptionRepository
+//            .findByUserAndStatus(subscription.getUser(), Subscription.Status.ACTIVE);
+//
+//        for (Subscription activeSub : activeSubscriptions) {
+//            if (!activeSub.getId().equals(subscriptionId)) {
+//                activeSub.setStatus(Subscription.Status.CANCELLED);
+//                subscriptionRepository.save(activeSub);
+//            }
+//        }
+//
+//        // Activate new subscription
+//        subscription.setPaymentStatus(Subscription.PaymentStatus.PAID);
+//        subscription.setStatus(Subscription.Status.ACTIVE);
+//        subscriptionRepository.save(subscription);
+//
+//        // Update user's current plan
+//        User user = subscription.getUser();
+//        user.setCurrentPlan(subscription.getPlan());
+//        userRepository.save(user);
+//    }
+//
+//    @Transactional
+//    public void cancelPayment(Long subscriptionId) {
+//        Subscription subscription = subscriptionRepository.findById(subscriptionId)
+//            .orElseThrow(() -> new RuntimeException("Không tìm thấy giao dịch"));
+//
+//        subscription.setPaymentStatus(Subscription.PaymentStatus.FAILED);
+//        subscription.setStatus(Subscription.Status.CANCELLED);
+//        subscriptionRepository.save(subscription);
+//    }
 
     // ========== QUESTION MANAGEMENT ==========
 

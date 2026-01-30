@@ -110,103 +110,103 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // ========== PLANS MANAGEMENT ==========
+    // ========== PLANS MANAGEMENT (HIDDEN) ==========
+//
+//    @GetMapping("/plans")
+//    public String plans(Model model) {
+//        List<Plan> plans = adminService.getAllPlans();
+//        model.addAttribute("plans", plans);
+//        return "admin/plans";
+//    }
+//
+//    @GetMapping("/plans/new")
+//    public String newPlan(Model model) {
+//        model.addAttribute("plan", new Plan());
+//        return "admin/plan-form";
+//    }
+//
+//    @PostMapping("/plans")
+//    public String createPlan(@ModelAttribute Plan plan, RedirectAttributes redirectAttributes) {
+//        try {
+//            adminService.createPlan(plan);
+//            redirectAttributes.addFlashAttribute("successMessage", "Tạo gói dịch vụ thành công!");
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+//        }
+//        return "redirect:/admin/plans";
+//    }
+//
+//    @GetMapping("/plans/{id}/edit")
+//    public String editPlan(@PathVariable Long id, Model model) {
+//        Plan plan = adminService.getPlanById(id);
+//        model.addAttribute("plan", plan);
+//        return "admin/plan-form";
+//    }
+//
+//    @PostMapping("/plans/{id}")
+//    public String updatePlan(@PathVariable Long id, @ModelAttribute Plan plan, RedirectAttributes redirectAttributes) {
+//        try {
+//            adminService.updatePlan(id, plan);
+//            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật gói dịch vụ thành công!");
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+//        }
+//        return "redirect:/admin/plans";
+//    }
+//
+//    @PostMapping("/plans/{id}/delete")
+//    public String deletePlan(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+//        try {
+//            adminService.deletePlan(id);
+//            redirectAttributes.addFlashAttribute("successMessage", "Xóa gói dịch vụ thành công!");
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+//        }
+//        return "redirect:/admin/plans";
+//    }
+//
+//    @PostMapping("/plans/{id}/toggle")
+//    public String togglePlanStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+//        try {
+//            Plan plan = adminService.togglePlanStatus(id);
+//            String status = plan.getActive() ? "kích hoạt" : "vô hiệu hóa";
+//            redirectAttributes.addFlashAttribute("successMessage", "Đã " + status + " gói " + plan.getName());
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+//        }
+//        return "redirect:/admin/plans";
+//    }
 
-    @GetMapping("/plans")
-    public String plans(Model model) {
-        List<Plan> plans = adminService.getAllPlans();
-        model.addAttribute("plans", plans);
-        return "admin/plans";
-    }
-
-    @GetMapping("/plans/new")
-    public String newPlan(Model model) {
-        model.addAttribute("plan", new Plan());
-        return "admin/plan-form";
-    }
-
-    @PostMapping("/plans")
-    public String createPlan(@ModelAttribute Plan plan, RedirectAttributes redirectAttributes) {
-        try {
-            adminService.createPlan(plan);
-            redirectAttributes.addFlashAttribute("successMessage", "Tạo gói dịch vụ thành công!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/admin/plans";
-    }
-
-    @GetMapping("/plans/{id}/edit")
-    public String editPlan(@PathVariable Long id, Model model) {
-        Plan plan = adminService.getPlanById(id);
-        model.addAttribute("plan", plan);
-        return "admin/plan-form";
-    }
-
-    @PostMapping("/plans/{id}")
-    public String updatePlan(@PathVariable Long id, @ModelAttribute Plan plan, RedirectAttributes redirectAttributes) {
-        try {
-            adminService.updatePlan(id, plan);
-            redirectAttributes.addFlashAttribute("successMessage", "Cập nhật gói dịch vụ thành công!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/admin/plans";
-    }
-
-    @PostMapping("/plans/{id}/delete")
-    public String deletePlan(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            adminService.deletePlan(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Xóa gói dịch vụ thành công!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/admin/plans";
-    }
-
-    @PostMapping("/plans/{id}/toggle")
-    public String togglePlanStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            Plan plan = adminService.togglePlanStatus(id);
-            String status = plan.getActive() ? "kích hoạt" : "vô hiệu hóa";
-            redirectAttributes.addFlashAttribute("successMessage", "Đã " + status + " gói " + plan.getName());
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/admin/plans";
-    }
-
-    // ========== PAYMENTS MANAGEMENT ==========
-
-    @GetMapping("/payments")
-    public String payments(Model model) {
-        Map<String, Object> stats = adminService.getPaymentStatistics();
-        model.addAllAttributes(stats);
-        return "admin/payments";
-    }
-
-    @PostMapping("/payments/{id}/confirm")
-    public String confirmPayment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            adminService.confirmPayment(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận thanh toán!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/admin/payments";
-    }
-
-    @PostMapping("/payments/{id}/cancel")
-    public String cancelPayment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            adminService.cancelPayment(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Đã hủy giao dịch!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
-        }
-        return "redirect:/admin/payments";
-    }
+    // ========== PAYMENTS MANAGEMENT (HIDDEN) ==========
+//
+//    @GetMapping("/payments")
+//    public String payments(Model model) {
+//        Map<String, Object> stats = adminService.getPaymentStatistics();
+//        model.addAllAttributes(stats);
+//        return "admin/payments";
+//    }
+//
+//    @PostMapping("/payments/{id}/confirm")
+//    public String confirmPayment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+//        try {
+//            adminService.confirmPayment(id);
+//            redirectAttributes.addFlashAttribute("successMessage", "Đã xác nhận thanh toán!");
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+//        }
+//        return "redirect:/admin/payments";
+//    }
+//
+//    @PostMapping("/payments/{id}/cancel")
+//    public String cancelPayment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+//        try {
+//            adminService.cancelPayment(id);
+//            redirectAttributes.addFlashAttribute("successMessage", "Đã hủy giao dịch!");
+//        } catch (Exception e) {
+//            redirectAttributes.addFlashAttribute("errorMessage", "Lỗi: " + e.getMessage());
+//        }
+//        return "redirect:/admin/payments";
+//    }
 
     // ========== CONTENT MANAGEMENT - QUESTIONS ==========
 
