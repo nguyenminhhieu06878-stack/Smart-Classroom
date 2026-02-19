@@ -41,7 +41,9 @@
                     <div class="card">
                         <div class="card-body">
                             <form th:action="${lesson.id == null} ? @{/teacher/lessons} : @{/teacher/lessons/{id}(id=${lesson.id})}" 
-                                  method="post" th:object="${lesson}">
+                                  method="post" th:object="${lesson}" enctype="multipart/form-data">
+                                <!-- CSRF Token for multipart form -->
+                                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
                                 
                                 <div class="form-group">
                                     <label class="form-label">Tiêu đề bài giảng</label>
@@ -50,11 +52,12 @@
 
                                 <div class="form-group">
                                     <label class="form-label">Phòng học</label>
-                                    <select th:field="*{classroom.id}" class="form-select">
-                                        <option value="">Không gán phòng (tất cả phòng)</option>
+                                    <select name="classroomId" class="form-select">
+                                        <option value="" th:selected="${lesson.classroom == null}">Không gán phòng (tất cả phòng)</option>
                                         <option th:each="classroom : ${classrooms}" 
                                                 th:value="${classroom.id}" 
-                                                th:text="${classroom.name + ' (' + classroom.roomId + ')'}">
+                                                th:text="${classroom.name + ' (' + classroom.roomId + ')'}"
+                                                th:selected="${lesson.classroom != null && lesson.classroom.id == classroom.id}">
                                         </option>
                                     </select>
                                     <small class="text-secondary text-sm">
@@ -95,12 +98,23 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Video YouTube (tùy chọn)</label>
-                                    <input type="text" th:field="*{videoUrl}" class="form-input" 
-                                           placeholder="https://www.youtube.com/watch?v=...">
+                                    <label class="form-label">Video bài giảng (tùy chọn)</label>
+                                    <input type="file" name="videoFile" class="form-input" 
+                                           accept="video/mp4,video/webm,video/ogg">
                                     <small class="text-secondary text-sm">
-                                        Dán link YouTube để tự động hiển thị video trong bài giảng
+                                        Chọn file video (MP4, WebM, OGG) - Tối đa 100MB
                                     </small>
+                                    
+                                    <!-- Hiển thị video hiện tại nếu đang edit -->
+                                    <div th:if="${lesson.videoUrl != null && !lesson.videoUrl.isEmpty()}" class="mt-md">
+                                        <div class="text-sm text-secondary mb-sm">Video hiện tại:</div>
+                                        <video th:src="${lesson.videoUrl}" controls style="max-width: 300px; max-height: 200px; border-radius: 8px;"></video>
+                                        <div class="mt-sm">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" name="removeVideo" value="true"> Xóa video hiện tại
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">

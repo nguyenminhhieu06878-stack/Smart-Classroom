@@ -35,14 +35,15 @@ public class LessonService {
     }
 
     @Transactional
-    public Lesson createLesson(Lesson lesson) {
+    public Lesson createLesson(Lesson lesson, Classroom classroom) {
         lesson.setCreatedAt(LocalDateTime.now());
         lesson.setUpdatedAt(LocalDateTime.now());
+        lesson.setClassroom(classroom); // Set managed classroom entity
         return lessonRepository.save(lesson);
     }
 
     @Transactional
-    public Lesson updateLesson(Long id, Lesson lessonDetails) {
+    public Lesson updateLesson(Long id, Lesson lessonDetails, Classroom classroom) {
         Lesson lesson = lessonRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài giảng"));
 
@@ -53,6 +54,7 @@ public class LessonService {
         lesson.setTopic(lessonDetails.getTopic());
         lesson.setLearningObjectives(lessonDetails.getLearningObjectives());
         lesson.setVideoUrl(lessonDetails.getVideoUrl());
+        lesson.setClassroom(classroom); // Set managed classroom entity
         lesson.setUpdatedAt(LocalDateTime.now());
 
         return lessonRepository.save(lesson);

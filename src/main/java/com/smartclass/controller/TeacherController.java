@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,12 +29,14 @@ public class TeacherController {
     private final ClassroomService classroomService;
     private final ClassroomMemberService classroomMemberService;
     private final SubscriptionService subscriptionService;
+    private final FileStorageService fileStorageService;
 
     public TeacherController(UserService userService, QuestionService questionService,
             LessonService lessonService, TestService testService,
             AIService aiService, PaymentService paymentService,
             ClassroomService classroomService, ClassroomMemberService classroomMemberService,
-            SubscriptionService subscriptionService) {
+            SubscriptionService subscriptionService,
+            FileStorageService fileStorageService) {
         this.userService = userService;
         this.questionService = questionService;
         this.lessonService = lessonService;
@@ -42,6 +46,7 @@ public class TeacherController {
         this.classroomService = classroomService;
         this.classroomMemberService = classroomMemberService;
         this.subscriptionService = subscriptionService;
+        this.fileStorageService = fileStorageService;
     }
 
     private User getCurrentUser(Authentication auth) {
@@ -293,10 +298,26 @@ public class TeacherController {
     }
 
     @PostMapping("/lessons")
-    public String createLesson(@ModelAttribute Lesson lesson, Authentication auth) {
+    public String createLesson(@ModelAttribute Lesson lesson, 
+            @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+            @RequestParam(value = "classroomId", required = false) Long classroomId,
+            Authentication auth) {
         User teacher = getCurrentUser(auth);
         lesson.setTeacher(teacher);
-        lessonService.createLesson(lesson);
+        
+        // Fetch classroom từ database nếu có chọn
+        Classroom classroom = null;
+        if (classroomId != null) {
+            classroom = classroomService.getClassroomById(classroomId).orElse(null);
+        }
+        
+        // Xử lý upload video file
+        if (videoFile != null && !videoFile.isEmpty()) {
+            String videoPath = fileStorageService.storeVideoFile(videoFile);
+            lesson.setVideoUrl(videoPath);
+        }
+        
+        lessonService.createLesson(lesson, classroom);
         return "redirect:/teacher/lessons";
     }
 
@@ -312,10 +333,43 @@ public class TeacherController {
     }
 
     @PostMapping("/lessons/{id}")
-    public String updateLesson(@PathVariable Long id, @ModelAttribute Lesson lesson, Authentication auth) {
+    public String updateLesson(@PathVariable Long id, @ModelAttribute Lesson lesson, 
+            @RequestParam(value = "videoFile", required = false) MultipartFile videoFile,
+            @RequestParam(value = "removeVideo", required = false) Boolean removeVideo,
+            @RequestParam(value = "classroomId", required = false) Long classroomId,
+            Authentication auth) {
         User teacher = getCurrentUser(auth);
         lesson.setTeacher(teacher);
-        lessonService.updateLesson(id, lesson);
+        
+        // Fetch classroom từ database nếu có chọn
+        Classroom classroom = null;
+        if (classroomId != null) {
+            classroom = classroomService.getClassroomById(classroomId).orElse(null);
+        }
+        
+        // Lấy bài giảng hiện tại để kiểm tra video cũ
+        Lesson existingLesson = lessonService.getLessonById(id)
+                .orElseThrow(() -> new RuntimeException("Lesson not found"));
+        
+        // Xử lý xóa video cũ
+        if (Boolean.TRUE.equals(removeVideo) && existingLesson.getVideoUrl() != null) {
+            fileStorageService.deleteVideoFile(existingLesson.getVideoUrl());
+            lesson.setVideoUrl(null);
+        }
+        // Xử lý upload video mới
+        else if (videoFile != null && !videoFile.isEmpty()) {
+            // Xóa video cũ nếu có
+            if (existingLesson.getVideoUrl() != null) {
+                fileStorageService.deleteVideoFile(existingLesson.getVideoUrl());
+            }
+            String videoPath = fileStorageService.storeVideoFile(videoFile);
+            lesson.setVideoUrl(videoPath);
+        } else {
+            // Giữ nguyên video cũ nếu không upload mới và không xóa
+            lesson.setVideoUrl(existingLesson.getVideoUrl());
+        }
+        
+        lessonService.updateLesson(id, lesson, classroom);
         return "redirect:/teacher/lessons";
     }
 
@@ -993,6 +1047,22 @@ public class TeacherController {
         combined.addAll(aiQuestions);
         System.out.println("=== Total combined: " + combined.size() + " questions");
         return combined;
+    }
+
+    // ========== XỬ LÝ LỖI ==========
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e, 
+            RedirectAttributes redirectAttributes,
+            Authentication auth,
+            Model model) {
+        User teacher = getCurrentUser(auth);
+        List<Classroom> classrooms = classroomService.findByTeacherAndIsActive(teacher, true);
+        
+        model.addAttribute("lesson", new Lesson());
+        model.addAttribute("classrooms", classrooms);
+        model.addAttribute("errorMessage", "File video quá lớn! Vui lòng chọn file nhỏ hơn 100MB.");
+        return "teacher/lesson-form";
     }
 
     // ========== QUẢN LÝ HỌC SINH (Legacy - redirect to classrooms) ==========

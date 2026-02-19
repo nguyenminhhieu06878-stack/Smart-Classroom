@@ -86,10 +86,18 @@
                                      th:text="${lesson.content}"></div>
                             </div>
 
-                            <!-- Video URL -->
+                            <!-- Video -->
                             <div th:if="${lesson.videoUrl != null && !lesson.videoUrl.isEmpty()}">
-                                <h4 class="mb-sm">Video</h4>
-                                <a th:href="${lesson.videoUrl}" target="_blank" th:text="${lesson.videoUrl}"></a>
+                                <h4 class="mb-sm">Video bài giảng</h4>
+                                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; background: #000;">
+                                    <video 
+                                        th:src="${lesson.videoUrl}"
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;"
+                                        controls
+                                        controlsList="nodownload">
+                                        Trình duyệt của bạn không hỗ trợ xem video.
+                                    </video>
+                                </div>
                             </div>
 
                             <!-- Actions -->
