@@ -13,11 +13,9 @@ public class SmartClassroomApplication {
         SpringApplication.run(SmartClassroomApplication.class, args);
     }
 
-    /**
-     * Cấu hình giới hạn upload file (500MB)
-     */
+
     @Bean
-    public MultipartConfigElement multipartConfigElement() {
+    public static MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();
         factory.setMaxFileSize(DataSize.ofMegabytes(500));
         factory.setMaxRequestSize(DataSize.ofMegabytes(500));
